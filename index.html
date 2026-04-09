@@ -511,6 +511,118 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* API Key section */
+    .api-section {
+      margin-top: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .api-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 8px 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .api-toggle:active { opacity: 0.7; }
+    .api-toggle .arrow { transition: transform 0.2s; font-size: 10px; }
+    .api-toggle .arrow.open { transform: rotate(90deg); }
+    .api-body { overflow: hidden; transition: max-height 0.3s ease; max-height: 0; }
+    .api-body.open { max-height: 200px; }
+    .api-body input { margin-top: 8px; font-size: 14px; }
+    .api-status {
+      font-size: 12px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .api-status .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+    .dot-on { background: #34C759; }
+    .dot-off { background: #666; }
+
+    /* Soul skills */
+    .skills-section {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 20px;
+      margin-bottom: 24px;
+    }
+    .skills-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .skill-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      animation: slideUp 0.3s ease both;
+    }
+    .skill-item:last-child { border-bottom: none; }
+    .skill-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .skill-content { flex: 1; }
+    .skill-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .skill-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Loading state */
+    .ai-loading {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .ai-loading .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Wuhun description */
+    .wuhun-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 12px;
+      text-align: center;
+      padding: 0 8px;
+    }
+
     /* Responsive */
     @media (max-width: 380px) {
       .container { padding: 24px 16px; }
@@ -573,6 +685,21 @@
         </div>
 
         <button class="btn-primary" onclick="startAwakening()" id="btn-awaken">⚡ 觉醒武魂</button>
+
+        <div class="api-section">
+          <div class="api-toggle" onclick="toggleApiSection()">
+            <span>🧠 接入 DeepSeek AI（生成魂技等更多内容）</span>
+            <span class="arrow" id="api-arrow">▶</span>
+          </div>
+          <div class="api-body" id="api-body">
+            <input type="password" id="input-api-key" placeholder="输入 DeepSeek API Key"
+                   oninput="saveApiKey(this.value)">
+            <div class="api-status">
+              <span class="dot" id="api-dot"></span>
+              <span id="api-status-text"></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -592,6 +719,13 @@
           <div class="wuhun-label">武 魂</div>
           <div class="wuhun-name" id="r-wuhun-name"></div>
           <div class="wuhun-element" id="r-elements"></div>
+          <div class="wuhun-desc hidden" id="r-wuhun-desc"></div>
+        </div>
+
+        <!-- Soul Skills (AI generated) -->
+        <div class="skills-section hidden" id="skills-section">
+          <div class="skills-label">九 大 魂 技</div>
+          <div id="r-skills"></div>
         </div>
 
         <div class="soul-rings-section">
@@ -946,6 +1080,124 @@
       return text;
     }
 
+    // ==================== DEEPSEEK API ====================
+
+    function getApiKey() {
+      return localStorage.getItem('deepseek_api_key') || '';
+    }
+
+    function saveApiKey(key) {
+      localStorage.setItem('deepseek_api_key', key.trim());
+      updateApiStatus();
+    }
+
+    function updateApiStatus() {
+      const key = getApiKey();
+      const dot = document.getElementById('api-dot');
+      const text = document.getElementById('api-status-text');
+      if (key) {
+        dot.className = 'dot dot-on';
+        text.textContent = 'API Key 已保存，将生成魂技等增强内容';
+        text.style.color = '#34C759';
+      } else {
+        dot.className = 'dot dot-off';
+        text.textContent = '未设置，将使用本地生成（无魂技）';
+        text.style.color = '#666';
+      }
+    }
+
+    function toggleApiSection() {
+      const body = document.getElementById('api-body');
+      const arrow = document.getElementById('api-arrow');
+      body.classList.toggle('open');
+      arrow.classList.toggle('open');
+    }
+
+    async function callDeepSeek(bazi, titleInfo) {
+      const apiKey = getApiKey();
+      if (!apiKey) return null;
+
+      const baziStr = [
+        `年柱:${TIAN_GAN[bazi.year.stem]}${DI_ZHI[bazi.year.branch]}`,
+        `月柱:${TIAN_GAN[bazi.month.stem]}${DI_ZHI[bazi.month.branch]}`,
+        `日柱:${TIAN_GAN[bazi.day.stem]}${DI_ZHI[bazi.day.branch]}`,
+        bazi.hour ? `时柱:${TIAN_GAN[bazi.hour.stem]}${DI_ZHI[bazi.hour.branch]}` : '时柱:未知'
+      ].join('，');
+
+      const wxStr = Object.entries(bazi.wxCount).map(([k, v]) => `${k}${v}`).join(' ');
+
+      const prompt = `你是斗罗大陆世界观的设定大师。根据以下八字信息，生成一个完整的封号斗罗角色设定。
+
+八字信息：
+- 四柱：${baziStr}
+- 日主：${bazi.dayMasterName}${bazi.dayMaster}
+- 五行分布：${wxStr}
+- 主属性：${bazi.primary}，辅属性：${bazi.secondary}
+- 缺五行：${bazi.missing.length > 0 ? bazi.missing.join('、') : '无'}
+- 生肖：${bazi.zodiac}
+- 当前封号：${titleInfo.title}
+- 当前武魂：${titleInfo.wuhun}
+
+请严格按以下JSON格式回复（不要加任何多余文字）：
+{
+  "title": "封号（两字，如炎阳、玄冥等）",
+  "wuhun": "武魂名称",
+  "wuhun_desc": "武魂描述（30字以内，描述武魂的外观和特性）",
+  "skills": [
+    {"name": "第一魂技名", "desc": "效果描述（20字以内）"},
+    {"name": "第二魂技名", "desc": "效果描述"},
+    {"name": "第三魂技名", "desc": "效果描述"},
+    {"name": "第四魂技名", "desc": "效果描述"},
+    {"name": "第五魂技名", "desc": "效果描述"},
+    {"name": "第六魂技名", "desc": "效果描述"},
+    {"name": "第七魂技名", "desc": "效果描述"},
+    {"name": "第八魂技名", "desc": "效果描述"},
+    {"name": "第九魂技名·武魂真身", "desc": "终极形态描述（30字以内）"}
+  ],
+  "personality": "命格解读（80字以内，用斗罗大陆风格描述此人性格、天赋和命运走向）"
+}
+
+要求：
+1. 封号和武魂要与八字五行属性高度契合
+2. 魂技从弱到强，第九魂技必须是武魂真身
+3. 魂技命名要有中国古风/玄幻感
+4. 性格分析结合八字日主特点和斗罗世界观`;
+
+      try {
+        const resp = await fetch('https://api.deepseek.com/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.8,
+            max_tokens: 1000
+          })
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          console.error('DeepSeek API error:', resp.status, err);
+          return null;
+        }
+
+        const data = await resp.json();
+        const content = data.choices?.[0]?.message?.content || '';
+
+        // Extract JSON from response (handle markdown code blocks)
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) return null;
+
+        return JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        console.error('DeepSeek call failed:', e);
+        return null;
+      }
+    }
+
     // ==================== UI ====================
 
     function initSelectors() {
@@ -993,9 +1245,25 @@
       const rings = generateSoulRings(bazi, year, month, day);
       const personality = generatePersonality(bazi);
 
+      // Start API call in parallel with animation (if key exists)
+      const apiPromise = getApiKey() ? callDeepSeek(bazi, titleInfo) : Promise.resolve(null);
+
       // Show awakening animation
       showAwakeningAnimation(bazi, rings, () => {
         renderResult(bazi, titleInfo, rings, personality);
+
+        // If API key exists, show loading and wait for AI content
+        if (getApiKey()) {
+          showAiLoading();
+          apiPromise.then(aiData => {
+            if (aiData) {
+              renderAiContent(aiData, bazi, rings);
+            } else {
+              hideAiLoading();
+              showToast('AI 生成失败，显示本地内容');
+            }
+          });
+        }
       });
     }
 
@@ -1081,9 +1349,75 @@
       document.getElementById('r-personality').innerHTML = personality.replace(/\n/g, '<br>');
     }
 
+    function showAiLoading() {
+      const skillsSection = document.getElementById('skills-section');
+      skillsSection.classList.remove('hidden');
+      document.getElementById('r-skills').innerHTML =
+        '<div class="ai-loading"><span class="spinner"></span>DeepSeek AI 正在生成魂技...</div>';
+    }
+
+    function hideAiLoading() {
+      document.getElementById('r-skills').innerHTML = '';
+      document.getElementById('skills-section').classList.add('hidden');
+    }
+
+    function renderAiContent(aiData, bazi, rings) {
+      // Update title if AI provided one
+      if (aiData.title) {
+        document.getElementById('r-title').textContent = aiData.title + '斗罗';
+      }
+
+      // Update wuhun
+      if (aiData.wuhun) {
+        document.getElementById('r-wuhun-name').textContent = aiData.wuhun;
+      }
+
+      // Wuhun description
+      if (aiData.wuhun_desc) {
+        const descEl = document.getElementById('r-wuhun-desc');
+        descEl.textContent = aiData.wuhun_desc;
+        descEl.classList.remove('hidden');
+      }
+
+      // Soul skills
+      if (aiData.skills && aiData.skills.length > 0) {
+        const skillsSection = document.getElementById('skills-section');
+        skillsSection.classList.remove('hidden');
+
+        const ringColors = { white: 'ring-white', yellow: 'ring-yellow', purple: 'ring-purple', black: 'ring-black', red: 'ring-red' };
+
+        const skillsHtml = aiData.skills.map((skill, i) => {
+          const ringClass = rings[i] ? ringColors[rings[i]] : 'ring-yellow';
+          return `
+            <div class="skill-item" style="animation-delay:${i * 0.08}s">
+              <div class="skill-num ${ringClass}">${i + 1}</div>
+              <div class="skill-content">
+                <div class="skill-name">${skill.name}</div>
+                <div class="skill-desc">${skill.desc}</div>
+              </div>
+            </div>`;
+        }).join('');
+        document.getElementById('r-skills').innerHTML = skillsHtml;
+      }
+
+      // Personality override
+      if (aiData.personality) {
+        const dm = bazi.dayMasterName;
+        const info = DAY_MASTER_PERSONALITY[dm];
+        let fullText = `${info.base}\n\n${aiData.personality}\n\n`;
+        fullText += `🎯 魂师定位：${info.type}\n`;
+        fullText += `${WX_EMOJI[bazi.primary]} 主属性「${bazi.primary}」`;
+        if (bazi.missing.length > 0) fullText += `，缺「${bazi.missing.join('、')}」`;
+        fullText += `\n🐾 生肖：${bazi.zodiac}`;
+        document.getElementById('r-personality').innerHTML = fullText.replace(/\n/g, '<br>');
+      }
+    }
+
     function resetApp() {
       document.getElementById('screen-result').classList.add('hidden');
       document.getElementById('screen-home').classList.remove('hidden');
+      document.getElementById('skills-section').classList.add('hidden');
+      document.getElementById('r-wuhun-desc').classList.add('hidden');
     }
 
     async function saveImage() {
@@ -1111,6 +1445,12 @@
     // ==================== INIT ====================
     window.addEventListener('DOMContentLoaded', () => {
       initSelectors();
+      // Restore API key
+      const savedKey = getApiKey();
+      if (savedKey) {
+        document.getElementById('input-api-key').value = savedKey;
+      }
+      updateApiStatus();
     });
   </script>
 </body>
