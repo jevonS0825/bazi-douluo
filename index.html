@@ -1424,30 +1424,40 @@
       const primaryCount = bazi.wxCount[bazi.primary];
       const strength = primaryCount / totalWx; // 0~1, higher = stronger BaZi
 
-      // Strength bonus: strong BaZi significantly boosts ring quality
-      // strength ~0.25 = average, ~0.375+ = very strong
-      const bonus = Math.max(0, (strength - 0.2) * 2.5); // 0~0.75
+      const hasBoost = bazi.hasBoost;
 
+      // 6 levels: 0=white(十年) 1=yellow(百年) 2=purple(千年) 3=black(万年) 4=red(十万年) 5=gold(百万年)
+      const LEVEL_NAMES = ['white','yellow','purple','black','red','gold'];
+
+      // Base templates by strength tier
+      // 封号斗罗第一魂环最低百年，必须严格递增
+      let base;
+      if (strength > 0.38 || hasBoost) {
+        // 神话: 百年 百年 千年 万年 万年 十万年 十万年 十万年 百万年
+        base = [1, 1, 2, 3, 3, 4, 4, 4, 5];
+      } else if (strength > 0.32) {
+        // 传说: 百年 百年 千年 千年 万年 万年 十万年 十万年 百万年
+        base = [1, 1, 2, 2, 3, 3, 4, 4, 5];
+      } else if (strength > 0.27) {
+        // 史诗: 百年 百年 千年 千年 万年 万年 万年 十万年 十万年
+        base = [1, 1, 2, 2, 3, 3, 3, 4, 4];
+      } else if (strength > 0.23) {
+        // 稀有: 百年 百年 百年 千年 千年 万年 万年 万年 十万年
+        base = [1, 1, 1, 2, 2, 3, 3, 3, 4];
+      } else {
+        // 普通: 百年 百年 百年 千年 千年 千年 万年 万年 万年
+        base = [1, 1, 1, 2, 2, 2, 3, 3, 3];
+      }
+
+      // Apply small noise (only bump UP, never down; enforce non-decreasing)
       const rings = [];
+      let prev = 0;
       for (let i = 0; i < 9; i++) {
-        const pos = (i + 1) / 9; // 0.11 ~ 1.0
-        const noise = ((hash >> (i * 3)) & 7) / 35;
-        // Effective level = position + BaZi bonus
-        const level = pos + bonus * 0.3 - noise;
-
-        if (level > 1.05) {
-          rings.push('gold');    // 百万年 — only the strongest BaZi
-        } else if (level > 0.88) {
-          rings.push('red');     // 十万年
-        } else if (level > 0.68) {
-          rings.push('black');   // 万年
-        } else if (level > 0.45) {
-          rings.push('purple');  // 千年
-        } else if (level > 0.2) {
-          rings.push('yellow');  // 百年
-        } else {
-          rings.push('white');   // 十年
-        }
+        let lvl = base[i];
+        if (((hash >> (i * 2)) & 3) === 3 && lvl < 5) lvl++;
+        lvl = Math.max(lvl, prev); // enforce non-decreasing
+        prev = lvl;
+        rings.push(LEVEL_NAMES[lvl]);
       }
 
       return rings;
