@@ -794,6 +794,65 @@
       padding: 0 8px;
     }
 
+    /* Input mode tabs */
+    .input-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      background: var(--card-light);
+      border-radius: 12px;
+      padding: 3px;
+    }
+    .input-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      background: none;
+    }
+    .input-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* GanZhi input */
+    .ganzhi-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .ganzhi-row label {
+      width: 36px;
+      flex-shrink: 0;
+      font-size: 13px;
+      margin-bottom: 0;
+      text-align: right;
+    }
+    .ganzhi-row select { flex: 1; font-size: 14px; padding: 10px 12px; }
+
+    /* Rarity badge */
+    .wuhun-rarity {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .rarity-common { background: rgba(255,255,255,0.08); color: #999; border: 1px solid #333; }
+    .rarity-rare { background: rgba(70,130,255,0.15); color: #5B9DFF; border: 1px solid rgba(70,130,255,0.3); }
+    .rarity-epic { background: rgba(168,85,247,0.15); color: #C084FC; border: 1px solid rgba(168,85,247,0.3); }
+    .rarity-legend { background: rgba(255,165,0,0.15); color: #FFA500; border: 1px solid rgba(255,165,0,0.3); }
+    .rarity-myth { background: rgba(255,215,0,0.2); color: #FFD700; border: 1px solid rgba(255,215,0,0.4); box-shadow: 0 0 12px rgba(255,215,0,0.15); }
+
     /* Relations (刑冲合会) */
     .relations-section { margin-bottom: 16px; }
     .relations-tags {
@@ -838,39 +897,73 @@
           <input type="text" id="input-name" placeholder="输入姓名或昵称" maxlength="20">
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>出生年份</label>
-            <select id="input-year"></select>
+        <!-- Input mode tabs -->
+        <div class="input-tabs">
+          <button class="input-tab active" onclick="switchInputMode('date')">📅 公历输入</button>
+          <button class="input-tab" onclick="switchInputMode('ganzhi')">🔣 四柱干支输入</button>
+        </div>
+
+        <!-- Mode 1: Date input -->
+        <div id="mode-date">
+          <div class="form-row">
+            <div class="form-group">
+              <label>出生年份</label>
+              <select id="input-year"></select>
+            </div>
+            <div class="form-group">
+              <label>月</label>
+              <select id="input-month"></select>
+            </div>
+            <div class="form-group">
+              <label>日</label>
+              <select id="input-day"></select>
+            </div>
           </div>
           <div class="form-group">
-            <label>月</label>
-            <select id="input-month"></select>
-          </div>
-          <div class="form-group">
-            <label>日</label>
-            <select id="input-day"></select>
+            <label>出生时辰</label>
+            <select id="input-hour">
+              <option value="-1">不确定</option>
+              <option value="0">子时 (23:00-01:00)</option>
+              <option value="1">丑时 (01:00-03:00)</option>
+              <option value="2">寅时 (03:00-05:00)</option>
+              <option value="3">卯时 (05:00-07:00)</option>
+              <option value="4">辰时 (07:00-09:00)</option>
+              <option value="5">巳时 (09:00-11:00)</option>
+              <option value="6">午时 (11:00-13:00)</option>
+              <option value="7">未时 (13:00-15:00)</option>
+              <option value="8">申时 (15:00-17:00)</option>
+              <option value="9">酉时 (17:00-19:00)</option>
+              <option value="10">戌时 (19:00-21:00)</option>
+              <option value="11">亥时 (21:00-23:00)</option>
+            </select>
+            <div class="form-hint">时辰可不填，但填写后结果更准确</div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>出生时辰</label>
-          <select id="input-hour">
-            <option value="-1">不确定</option>
-            <option value="0">子时 (23:00-01:00)</option>
-            <option value="1">丑时 (01:00-03:00)</option>
-            <option value="2">寅时 (03:00-05:00)</option>
-            <option value="3">卯时 (05:00-07:00)</option>
-            <option value="4">辰时 (07:00-09:00)</option>
-            <option value="5">巳时 (09:00-11:00)</option>
-            <option value="6">午时 (11:00-13:00)</option>
-            <option value="7">未时 (13:00-15:00)</option>
-            <option value="8">申时 (15:00-17:00)</option>
-            <option value="9">酉时 (17:00-19:00)</option>
-            <option value="10">戌时 (19:00-21:00)</option>
-            <option value="11">亥时 (21:00-23:00)</option>
-          </select>
-          <div class="form-hint">时辰可不填，但填写后结果更准确</div>
+        <!-- Mode 2: GanZhi direct input -->
+        <div id="mode-ganzhi" class="hidden">
+          <div class="form-hint" style="margin-bottom:12px;text-align:center">已知四柱干支？直接输入，跳过计算</div>
+          <div class="ganzhi-row">
+            <label>年柱</label>
+            <select id="gz-year-stem"></select>
+            <select id="gz-year-branch"></select>
+          </div>
+          <div class="ganzhi-row">
+            <label>月柱</label>
+            <select id="gz-month-stem"></select>
+            <select id="gz-month-branch"></select>
+          </div>
+          <div class="ganzhi-row">
+            <label>日柱</label>
+            <select id="gz-day-stem"></select>
+            <select id="gz-day-branch"></select>
+          </div>
+          <div class="ganzhi-row">
+            <label>时柱</label>
+            <select id="gz-hour-stem"></select>
+            <select id="gz-hour-branch"></select>
+          </div>
+          <div class="form-hint" style="margin-top:4px;text-align:center">时柱选"不确定"可留空</div>
         </div>
 
         <button class="btn-primary" onclick="startAwakening()" id="btn-awaken">⚡ 觉醒武魂</button>
@@ -908,6 +1001,7 @@
           <div class="wuhun-label">武 魂</div>
           <div class="wuhun-name" id="r-wuhun-name"></div>
           <div class="wuhun-element" id="r-elements"></div>
+          <div id="r-wuhun-rarity"></div>
           <div class="wuhun-desc hidden" id="r-wuhun-desc"></div>
         </div>
 
@@ -1542,6 +1636,8 @@
 
     // ==================== UI ====================
 
+    let currentInputMode = 'date';
+
     function initSelectors() {
       const yearSel = document.getElementById('input-year');
       const currentYear = new Date().getFullYear();
@@ -1559,6 +1655,125 @@
       for (let d = 1; d <= 31; d++) {
         daySel.innerHTML += `<option value="${d}">${d}日</option>`;
       }
+
+      // Init GanZhi selectors
+      const stemIds = ['gz-year-stem','gz-month-stem','gz-day-stem','gz-hour-stem'];
+      const branchIds = ['gz-year-branch','gz-month-branch','gz-day-branch','gz-hour-branch'];
+
+      stemIds.forEach((id, idx) => {
+        const sel = document.getElementById(id);
+        if (idx === 3) sel.innerHTML = '<option value="-1">不确定</option>';
+        TIAN_GAN.forEach((g, i) => {
+          sel.innerHTML += `<option value="${i}">${g}</option>`;
+        });
+      });
+
+      branchIds.forEach((id, idx) => {
+        const sel = document.getElementById(id);
+        if (idx === 3) sel.innerHTML = '<option value="-1">不确定</option>';
+        DI_ZHI.forEach((z, i) => {
+          sel.innerHTML += `<option value="${i}">${z}</option>`;
+        });
+      });
+    }
+
+    function switchInputMode(mode) {
+      currentInputMode = mode;
+      document.getElementById('mode-date').classList.toggle('hidden', mode !== 'date');
+      document.getElementById('mode-ganzhi').classList.toggle('hidden', mode !== 'ganzhi');
+      document.querySelectorAll('.input-tab').forEach((tab, i) => {
+        tab.classList.toggle('active', (i === 0 && mode === 'date') || (i === 1 && mode === 'ganzhi'));
+      });
+    }
+
+    // Build BaZi directly from GanZhi input
+    function buildBaZiFromGanZhi() {
+      const ys = parseInt(document.getElementById('gz-year-stem').value);
+      const yb = parseInt(document.getElementById('gz-year-branch').value);
+      const ms = parseInt(document.getElementById('gz-month-stem').value);
+      const mb = parseInt(document.getElementById('gz-month-branch').value);
+      const ds = parseInt(document.getElementById('gz-day-stem').value);
+      const db = parseInt(document.getElementById('gz-day-branch').value);
+      const hs = parseInt(document.getElementById('gz-hour-stem').value);
+      const hb = parseInt(document.getElementById('gz-hour-branch').value);
+
+      const yearP = { stem: ys, branch: yb };
+      const monthP = { stem: ms, branch: mb };
+      const dayP = { stem: ds, branch: db };
+      const hourP = (hs >= 0 && hb >= 0) ? { stem: hs, branch: hb } : null;
+
+      const pillars = [yearP, monthP, dayP];
+      if (hourP) pillars.push(hourP);
+
+      // Five element count with 藏干
+      const wxCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+      pillars.forEach(p => {
+        wxCount[WU_XING[p.stem]] += 1;
+        CANG_GAN[p.branch].forEach((si, i) => { wxCount[WU_XING[si]] += CANG_WEIGHT[i] || 0.3; });
+      });
+
+      // Detect relations
+      const branches = pillars.map(p => p.branch);
+      const relations = [];
+      LIU_HE.forEach(([a, b], idx) => {
+        if (branches.includes(a) && branches.includes(b)) {
+          relations.push({ type: '合', desc: `${DI_ZHI[a]}${DI_ZHI[b]}合${LIU_HE_WX[idx]}`, element: LIU_HE_WX[idx], boost: true });
+          wxCount[LIU_HE_WX[idx]] += 0.5;
+        }
+      });
+      SAN_HE.forEach(([trio, wx]) => {
+        if (trio.every(b => branches.includes(b))) {
+          relations.push({ type: '三合', desc: `${trio.map(b=>DI_ZHI[b]).join('')}三合${wx}局`, element: wx, boost: true });
+          wxCount[wx] += 1.5;
+        }
+      });
+      SAN_HUI.forEach(([trio, wx]) => {
+        if (trio.every(b => branches.includes(b))) {
+          relations.push({ type: '三会', desc: `${trio.map(b=>DI_ZHI[b]).join('')}三会${wx}局`, element: wx, boost: true });
+          wxCount[wx] += 2.0;
+        }
+      });
+      LIU_CHONG.forEach(([a, b]) => {
+        if (branches.includes(a) && branches.includes(b))
+          relations.push({ type: '冲', desc: `${DI_ZHI[a]}${DI_ZHI[b]}相冲`, clash: true });
+      });
+      SAN_XING.forEach(([group, name]) => {
+        if (group.filter(b => branches.includes(b)).length >= 2)
+          relations.push({ type: '刑', desc: `${group.filter(b=>branches.includes(b)).map(b=>DI_ZHI[b]).join('')}${name}` });
+      });
+      ZI_XING.forEach(b => {
+        if (branches.filter(x => x === b).length >= 2)
+          relations.push({ type: '自刑', desc: `${DI_ZHI[b]}${DI_ZHI[b]}自刑` });
+      });
+
+      const sorted = Object.entries(wxCount).sort((a, b) => b[1] - a[1]);
+      const totalWx = Object.values(wxCount).reduce((a, b) => a + b, 0);
+
+      return {
+        year: yearP, month: monthP, day: dayP, hour: hourP,
+        wxCount,
+        primary: sorted[0][0],
+        secondary: sorted[1][0],
+        missing: sorted.filter(([, v]) => v < 0.3).map(([k]) => k),
+        zodiac: SHENG_XIAO[yearP.branch],
+        dayMaster: WU_XING[dayP.stem],
+        dayMasterName: TIAN_GAN[dayP.stem],
+        relations,
+        strengthScore: sorted[0][1] / totalWx,
+        hasBoost: relations.some(r => r.boost)
+      };
+    }
+
+    // Wuhun rarity based on BaZi strength
+    function getWuhunRarity(bazi) {
+      const s = bazi.strengthScore;
+      const hasCombo = bazi.hasBoost;
+      const score = s + (hasCombo ? 0.1 : 0);
+      if (score > 0.42) return { label: '神话', cls: 'rarity-myth' };
+      if (score > 0.36) return { label: '传说', cls: 'rarity-legend' };
+      if (score > 0.3)  return { label: '史诗', cls: 'rarity-epic' };
+      if (score > 0.24) return { label: '稀有', cls: 'rarity-rare' };
+      return { label: '普通', cls: 'rarity-common' };
     }
 
     function showToast(msg) {
@@ -1569,22 +1784,35 @@
     }
 
     function startAwakening() {
-      const year = parseInt(document.getElementById('input-year').value);
-      const month = parseInt(document.getElementById('input-month').value);
-      const day = parseInt(document.getElementById('input-day').value);
-      const hourIdx = parseInt(document.getElementById('input-hour').value);
+      let bazi, titleInfo, rings, year, month, day, hourIdx;
 
-      // Validate date
-      const testDate = new Date(year, month - 1, day);
-      if (testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
-        showToast('日期无效，请检查');
-        return;
+      if (currentInputMode === 'ganzhi') {
+        // Direct GanZhi input
+        bazi = buildBaZiFromGanZhi();
+        // Use stem+branch indices as hash seed
+        year = bazi.year.stem * 12 + bazi.year.branch + 1940;
+        month = bazi.month.branch;
+        day = bazi.day.stem * 12 + bazi.day.branch;
+        hourIdx = bazi.hour ? bazi.hour.branch : -1;
+        titleInfo = generateTitle(bazi, year, month, day, hourIdx);
+        rings = generateSoulRings(bazi, year, month, day);
+      } else {
+        // Date input
+        year = parseInt(document.getElementById('input-year').value);
+        month = parseInt(document.getElementById('input-month').value);
+        day = parseInt(document.getElementById('input-day').value);
+        hourIdx = parseInt(document.getElementById('input-hour').value);
+
+        const testDate = new Date(year, month - 1, day);
+        if (testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
+          showToast('日期无效，请检查');
+          return;
+        }
+
+        bazi = calculateBaZi(year, month, day, hourIdx);
+        titleInfo = generateTitle(bazi, year, month, day, hourIdx);
+        rings = generateSoulRings(bazi, year, month, day);
       }
-
-      // Calculate
-      const bazi = calculateBaZi(year, month, day, hourIdx);
-      const titleInfo = generateTitle(bazi, year, month, day, hourIdx);
-      const rings = generateSoulRings(bazi, year, month, day);
       const personality = generatePersonality(bazi);
 
       // Start API call in parallel with animation (if key exists)
@@ -1657,6 +1885,11 @@
         <span class="element-badge secondary">${WX_EMOJI[bazi.secondary]} ${bazi.secondary}辅</span>
       `;
       document.getElementById('r-elements').innerHTML = elemHtml;
+
+      // Wuhun rarity
+      const rarity = getWuhunRarity(bazi);
+      document.getElementById('r-wuhun-rarity').innerHTML =
+        `<span class="wuhun-rarity ${rarity.cls}">${rarity.label}</span>`;
 
       // Soul rings — Douluo anime 3D halo style
       const ringLabels = { white: '十年', yellow: '百年', purple: '千年', black: '万年', red: '十万年', gold: '百万年' };
