@@ -391,6 +391,34 @@
     .ring-purple { background: #9B30FF; color: #FFF; box-shadow: 0 0 10px rgba(155,48,255,0.5); }
     .ring-black { background: #1A1A2E; color: #AAA; box-shadow: 0 0 10px rgba(0,0,0,0.8); border: 1px solid #333; }
     .ring-red { background: #CC0000; color: #FFF; box-shadow: 0 0 12px rgba(204,0,0,0.6); }
+    .ring-gold { background: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700); color: #8B6914; box-shadow: 0 0 16px rgba(255,215,0,0.7), 0 0 4px rgba(255,255,255,0.5); border: 1px solid rgba(255,215,0,0.6); }
+
+    /* Soul ring animations */
+    .soul-ring {
+      animation: ring-appear 0.4s ease both, ring-glow 2.5s ease-in-out infinite;
+    }
+    .soul-ring:nth-child(1) { animation-delay: 0.1s, 0.1s; }
+    .soul-ring:nth-child(2) { animation-delay: 0.2s, 0.3s; }
+    .soul-ring:nth-child(3) { animation-delay: 0.3s, 0.5s; }
+    .soul-ring:nth-child(4) { animation-delay: 0.4s, 0.7s; }
+    .soul-ring:nth-child(5) { animation-delay: 0.5s, 0.9s; }
+    .soul-ring:nth-child(6) { animation-delay: 0.6s, 1.1s; }
+    .soul-ring:nth-child(7) { animation-delay: 0.7s, 1.3s; }
+    .soul-ring:nth-child(8) { animation-delay: 0.8s, 1.5s; }
+    .soul-ring:nth-child(9) { animation-delay: 0.9s, 1.7s; }
+    @keyframes ring-appear {
+      from { opacity: 0; transform: scale(0) rotate(180deg); }
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    @keyframes ring-glow {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+    .ring-red, .ring-gold { animation: ring-appear 0.4s ease both, ring-glow-strong 2s ease-in-out infinite; }
+    @keyframes ring-glow-strong {
+      0%, 100% { filter: brightness(1); transform: scale(1); }
+      50% { filter: brightness(1.5); transform: scale(1.08); }
+    }
 
     .soul-rings-legend {
       display: flex;
@@ -613,6 +641,100 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Stats bars */
+    .stats-section {
+      margin-bottom: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 20px;
+    }
+    .stats-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .stat-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .stat-name {
+      width: 40px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .stat-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+    .stat-value {
+      width: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Talent card */
+    .talent-section {
+      margin-bottom: 24px;
+    }
+    .talent-card {
+      background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(179,27,27,0.08));
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .talent-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .talent-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Soul bone */
+    .soulbone-section {
+      margin-bottom: 24px;
+    }
+    .soulbone-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .soulbone-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .soulbone-icon { font-size: 20px; }
+    .soulbone-info { flex: 1; }
+    .soulbone-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .soulbone-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
     /* Wuhun description */
     .wuhun-desc {
       font-size: 13px;
@@ -732,17 +854,39 @@
           <div class="soul-rings-label">魂 环 配 置</div>
           <div class="soul-rings" id="r-soul-rings"></div>
           <div class="soul-rings-legend">
-            <span class="legend-item"><span class="legend-dot" style="background:#FFF"></span>百年</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#FFD700"></span>千年</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#9B30FF"></span>万年</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#1A1A2E;border:1px solid #555"></span>十万年</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#CC0000"></span>百万年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#FFF"></span>十年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#FFD700"></span>百年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#9B30FF"></span>千年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#1A1A2E;border:1px solid #555"></span>万年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#CC0000"></span>十万年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:linear-gradient(135deg,#FFD700,#FFF8DC,#FFD700)"></span>百万年</span>
           </div>
         </div>
 
         <div class="bazi-section">
           <div class="bazi-label">四 柱 八 字</div>
           <div class="bazi-pillars" id="r-bazi"></div>
+        </div>
+
+        <!-- Stats (AI generated) -->
+        <div class="stats-section hidden" id="stats-section">
+          <div class="stats-label">魂 力 属 性</div>
+          <div id="r-stats"></div>
+        </div>
+
+        <!-- Talent (AI generated) -->
+        <div class="talent-section hidden" id="talent-section">
+          <div class="skills-label">天 赋 异 能</div>
+          <div class="talent-card">
+            <div class="talent-name" id="r-talent-name"></div>
+            <div class="talent-desc" id="r-talent-desc"></div>
+          </div>
+        </div>
+
+        <!-- Soul bone (AI generated) -->
+        <div class="soulbone-section hidden" id="soulbone-section">
+          <div class="soulbone-label">推 荐 魂 骨</div>
+          <div id="r-soulbones"></div>
         </div>
 
         <div class="personality-section">
@@ -982,25 +1126,26 @@
       const hash = hashBirthday(year, month, day, -1);
       const totalWx = Object.values(bazi.wxCount).reduce((a, b) => a + b, 0);
       const primaryCount = bazi.wxCount[bazi.primary];
-      const strength = primaryCount / totalWx; // 0-1
+      const strength = primaryCount / totalWx;
 
-      // Generate 9 rings based on strength
-      // Higher strength = more high-level rings
+      // 6 levels: white(十年) yellow(百年) purple(千年) black(万年) red(十万年) gold(百万年)
       const rings = [];
       for (let i = 0; i < 9; i++) {
-        const threshold = (i + 1) / 9; // 0.11 to 1.0
-        const noise = ((hash >> (i * 3)) & 7) / 28; // small random factor
+        const threshold = (i + 1) / 9;
+        const noise = ((hash >> (i * 3)) & 7) / 28;
 
-        if (threshold > 0.85 + noise) {
-          rings.push('red');     // 百万年
-        } else if (threshold > 0.65 - strength * 0.15 + noise) {
-          rings.push('black');   // 十万年
-        } else if (threshold > 0.4 - strength * 0.1 + noise) {
-          rings.push('purple');  // 万年
-        } else if (threshold > 0.18 + noise) {
-          rings.push('yellow');  // 千年
+        if (threshold > 0.92 + noise) {
+          rings.push('gold');    // 百万年
+        } else if (threshold > 0.78 + noise) {
+          rings.push('red');     // 十万年
+        } else if (threshold > 0.6 - strength * 0.12 + noise) {
+          rings.push('black');   // 万年
+        } else if (threshold > 0.38 - strength * 0.1 + noise) {
+          rings.push('purple');  // 千年
+        } else if (threshold > 0.15 + noise) {
+          rings.push('yellow');  // 百年
         } else {
-          rings.push('white');   // 百年
+          rings.push('white');   // 十年
         }
       }
 
@@ -1126,7 +1271,7 @@
 
       const wxStr = Object.entries(bazi.wxCount).map(([k, v]) => `${k}${v}`).join(' ');
 
-      const prompt = `你是斗罗大陆世界观的设定大师。根据以下八字信息，生成一个完整的封号斗罗角色设定。
+      const prompt = `你是斗罗大陆世界观的顶级设定大师。根据以下八字命理信息，创造一个完整的封号斗罗角色。
 
 八字信息：
 - 四柱：${baziStr}
@@ -1135,33 +1280,37 @@
 - 主属性：${bazi.primary}，辅属性：${bazi.secondary}
 - 缺五行：${bazi.missing.length > 0 ? bazi.missing.join('、') : '无'}
 - 生肖：${bazi.zodiac}
-- 当前封号：${titleInfo.title}
-- 当前武魂：${titleInfo.wuhun}
 
-请严格按以下JSON格式回复（不要加任何多余文字）：
+请严格按以下JSON格式回复（不要加任何多余文字，不要用markdown）：
 {
-  "title": "封号（两字，如炎阳、玄冥等）",
-  "wuhun": "武魂名称",
-  "wuhun_desc": "武魂描述（30字以内，描述武魂的外观和特性）",
+  "title": "封号（两字，如炎阳、玄冥、碧落等，要与五行高度契合）",
+  "wuhun": "武魂名称（要原创有创意）",
+  "wuhun_desc": "武魂详细描述（50-80字，包括外观、来历、特性，要有画面感）",
+  "stats": {"attack": 8, "defense": 6, "speed": 7, "support": 5},
   "skills": [
-    {"name": "第一魂技名", "desc": "效果描述（20字以内）"},
-    {"name": "第二魂技名", "desc": "效果描述"},
-    {"name": "第三魂技名", "desc": "效果描述"},
-    {"name": "第四魂技名", "desc": "效果描述"},
-    {"name": "第五魂技名", "desc": "效果描述"},
-    {"name": "第六魂技名", "desc": "效果描述"},
-    {"name": "第七魂技名", "desc": "效果描述"},
-    {"name": "第八魂技名", "desc": "效果描述"},
-    {"name": "第九魂技名·武魂真身", "desc": "终极形态描述（30字以内）"}
+    {"name": "第一魂技名", "desc": "详细效果描述（25-35字，说清楚具体能力）"},
+    {"name": "第二魂技名", "desc": "详细效果描述"},
+    {"name": "第三魂技名", "desc": "详细效果描述"},
+    {"name": "第四魂技名", "desc": "详细效果描述"},
+    {"name": "第五魂技名", "desc": "详细效果描述"},
+    {"name": "第六魂技名", "desc": "详细效果描述"},
+    {"name": "第七魂技名", "desc": "详细效果描述"},
+    {"name": "第八魂技名", "desc": "详细效果描述"},
+    {"name": "第九魂技·武魂真身", "desc": "终极形态描述（50字，史诗级描写）"}
   ],
-  "personality": "命格解读（80字以内，用斗罗大陆风格描述此人性格、天赋和命运走向）"
+  "talent": {"name": "天赋异能名称（4字以内）", "desc": "被动能力描述（30-40字）"},
+  "soul_bones": [
+    {"part": "部位名（如头骨/躯干骨/左臂骨等）", "name": "魂骨名称", "desc": "附带能力（15字以内）"}
+  ],
+  "personality": "命格深度解读（120-150字，结合八字日主五行旺衰，用斗罗世界观描述性格、天赋、修炼路线和命运走向，要有代入感）"
 }
 
 要求：
-1. 封号和武魂要与八字五行属性高度契合
-2. 魂技从弱到强，第九魂技必须是武魂真身
-3. 魂技命名要有中国古风/玄幻感
-4. 性格分析结合八字日主特点和斗罗世界观`;
+1. stats中attack/defense/speed/support为1-10的整数，要根据五行属性合理分配
+2. 魂技从弱到强递进，命名要有中国古风/玄幻美感，第九魂技为武魂真身
+3. 天赋异能是一个独特的被动技能，要与日主天干特性相关
+4. soul_bones推荐1-2块魂骨，要与武魂属性互补
+5. 所有内容要与八字五行属性深度契合，不要泛泛而谈`;
 
       try {
         const resp = await fetch('https://api.deepseek.com/chat/completions', {
@@ -1174,7 +1323,7 @@
             model: 'deepseek-chat',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.8,
-            max_tokens: 1000
+            max_tokens: 2000
           })
         });
 
@@ -1273,7 +1422,7 @@
 
       const ringColors = {
         white: '#FFFFFF', yellow: '#FFD700', purple: '#9B30FF',
-        black: '#333', red: '#CC0000'
+        black: '#333', red: '#CC0000', gold: '#FFD700'
       };
 
       overlay.innerHTML = `
@@ -1317,7 +1466,7 @@
       document.getElementById('r-elements').innerHTML = elemHtml;
 
       // Soul rings
-      const ringLabels = { white: '百年', yellow: '千年', purple: '万年', black: '十万年', red: '百万年' };
+      const ringLabels = { white: '十年', yellow: '百年', purple: '千年', black: '万年', red: '十万年', gold: '百万年' };
       const ringsHtml = rings.map((r, i) =>
         `<div class="soul-ring ring-${r}" title="第${i+1}魂环: ${ringLabels[r]}">${i+1}</div>`
       ).join('');
@@ -1362,7 +1511,7 @@
     }
 
     function renderAiContent(aiData, bazi, rings) {
-      // Update title if AI provided one
+      // Update title
       if (aiData.title) {
         document.getElementById('r-title').textContent = aiData.title + '斗罗';
       }
@@ -1379,15 +1528,36 @@
         descEl.classList.remove('hidden');
       }
 
+      // Stats bars
+      if (aiData.stats) {
+        const statsSection = document.getElementById('stats-section');
+        statsSection.classList.remove('hidden');
+        const statColors = { attack: '#FF3B30', defense: '#007AFF', speed: '#34C759', support: '#FFD700' };
+        const statNames = { attack: '攻击', defense: '防御', speed: '速度', support: '辅助' };
+        let statsHtml = '';
+        for (const [key, label] of Object.entries(statNames)) {
+          const val = Math.min(10, Math.max(1, aiData.stats[key] || 5));
+          statsHtml += `
+            <div class="stat-row">
+              <span class="stat-name">${label}</span>
+              <div class="stat-bar-bg">
+                <div class="stat-bar-fill" style="width:${val * 10}%;background:${statColors[key]}"></div>
+              </div>
+              <span class="stat-value">${val}</span>
+            </div>`;
+        }
+        document.getElementById('r-stats').innerHTML = statsHtml;
+      }
+
       // Soul skills
       if (aiData.skills && aiData.skills.length > 0) {
         const skillsSection = document.getElementById('skills-section');
         skillsSection.classList.remove('hidden');
 
-        const ringColors = { white: 'ring-white', yellow: 'ring-yellow', purple: 'ring-purple', black: 'ring-black', red: 'ring-red' };
+        const ringClasses = { white: 'ring-white', yellow: 'ring-yellow', purple: 'ring-purple', black: 'ring-black', red: 'ring-red', gold: 'ring-gold' };
 
         const skillsHtml = aiData.skills.map((skill, i) => {
-          const ringClass = rings[i] ? ringColors[rings[i]] : 'ring-yellow';
+          const ringClass = rings[i] ? ringClasses[rings[i]] : 'ring-yellow';
           return `
             <div class="skill-item" style="animation-delay:${i * 0.08}s">
               <div class="skill-num ${ringClass}">${i + 1}</div>
@@ -1400,7 +1570,30 @@
         document.getElementById('r-skills').innerHTML = skillsHtml;
       }
 
-      // Personality override
+      // Talent
+      if (aiData.talent) {
+        const talentSection = document.getElementById('talent-section');
+        talentSection.classList.remove('hidden');
+        document.getElementById('r-talent-name').textContent = '🌟 ' + aiData.talent.name;
+        document.getElementById('r-talent-desc').textContent = aiData.talent.desc;
+      }
+
+      // Soul bones
+      if (aiData.soul_bones && aiData.soul_bones.length > 0) {
+        const sbSection = document.getElementById('soulbone-section');
+        sbSection.classList.remove('hidden');
+        const sbHtml = aiData.soul_bones.map(sb => `
+          <div class="soulbone-item">
+            <span class="soulbone-icon">🦴</span>
+            <div class="soulbone-info">
+              <div class="soulbone-name">${sb.part}·${sb.name}</div>
+              <div class="soulbone-desc">${sb.desc}</div>
+            </div>
+          </div>`).join('');
+        document.getElementById('r-soulbones').innerHTML = sbHtml;
+      }
+
+      // Personality
       if (aiData.personality) {
         const dm = bazi.dayMasterName;
         const info = DAY_MASTER_PERSONALITY[dm];
@@ -1416,7 +1609,8 @@
     function resetApp() {
       document.getElementById('screen-result').classList.add('hidden');
       document.getElementById('screen-home').classList.remove('hidden');
-      document.getElementById('skills-section').classList.add('hidden');
+      ['skills-section','stats-section','talent-section','soulbone-section'].forEach(id =>
+        document.getElementById(id).classList.add('hidden'));
       document.getElementById('r-wuhun-desc').classList.add('hidden');
     }
 
