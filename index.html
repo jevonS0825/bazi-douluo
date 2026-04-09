@@ -351,7 +351,7 @@
     .element-badge.primary { background: rgba(255,215,0,0.15); color: var(--gold); border-color: rgba(255,215,0,0.3); }
     .element-badge.secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
 
-    /* ===== Soul Rings — Douluo Anime Style ===== */
+    /* ===== Soul Rings — 2D Magic Circle Style ===== */
     .soul-rings-section {
       margin-bottom: 24px;
     }
@@ -363,96 +363,113 @@
       margin-bottom: 12px;
     }
 
-    /* 3D perspective stage */
+    /* Flat 2D concentric rings container */
     .rings-stage {
-      width: 260px;
-      height: 340px;
+      width: 280px;
+      height: 280px;
       margin: 0 auto;
       position: relative;
-      perspective: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(20,20,40,0.8) 0%, transparent 70%);
     }
 
-    /* Character silhouette */
+    /* Center core glow */
     .rings-center {
       position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 80px;
-      z-index: 10;
-      filter: drop-shadow(0 0 20px rgba(255,215,0,0.3));
-      line-height: 1;
-    }
-
-    /* Each ring is a 3D horizontal ellipse */
-    .ring-halo {
-      position: absolute;
-      left: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px; height: 24px;
       border-radius: 50%;
-      border-style: solid;
-      border-width: 3px;
-      transform: translateX(-50%) rotateX(75deg);
+      background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,215,0,0.4), transparent);
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.2);
+    }
+
+    /* Each concentric ring */
+    .ring-circle {
+      position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      border: 2px solid transparent;
       opacity: 0;
-      animation: halo-appear 0.5s ease forwards;
+      /* tick marks via dashed border on ::before */
+    }
+    .ring-circle::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px dashed;
+      border-color: inherit;
+      opacity: 0.2;
     }
 
-    /* Staggered appearance from bottom (1st) to top (9th) */
-    .ring-halo:nth-child(2) { animation-delay: 0.15s; }
-    .ring-halo:nth-child(3) { animation-delay: 0.35s; }
-    .ring-halo:nth-child(4) { animation-delay: 0.55s; }
-    .ring-halo:nth-child(5) { animation-delay: 0.75s; }
-    .ring-halo:nth-child(6) { animation-delay: 0.95s; }
-    .ring-halo:nth-child(7) { animation-delay: 1.15s; }
-    .ring-halo:nth-child(8) { animation-delay: 1.35s; }
-    .ring-halo:nth-child(9) { animation-delay: 1.55s; }
-    .ring-halo:nth-child(10) { animation-delay: 1.75s; }
-
-    @keyframes halo-appear {
-      0% { opacity: 0; transform: translateX(-50%) rotateX(75deg) scale(0.2); }
-      60% { opacity: 1; transform: translateX(-50%) rotateX(75deg) scale(1.08); }
-      100% { opacity: 1; transform: translateX(-50%) rotateX(75deg) scale(1); }
+    /* Staggered appear + spin */
+    .ring-circle.cw {
+      animation: rc-appear 0.5s ease forwards, rc-spin var(--dur) linear infinite;
+    }
+    .ring-circle.ccw {
+      animation: rc-appear 0.5s ease forwards, rc-spin-r var(--dur) linear infinite;
     }
 
-    /* Spin animation — ring rotates around Y axis in 3D */
-    .ring-halo.spin {
-      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite;
+    @keyframes rc-appear {
+      0% { opacity: 0; transform: translate(-50%,-50%) scale(0); }
+      60% { opacity: 1; transform: translate(-50%,-50%) scale(1.06); }
+      100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
     }
-    @keyframes halo-spin {
-      from { transform: translateX(-50%) rotateX(75deg) rotateZ(0deg); }
-      to { transform: translateX(-50%) rotateX(75deg) rotateZ(360deg); }
+    @keyframes rc-spin {
+      from { transform: translate(-50%,-50%) rotate(0deg); }
+      to { transform: translate(-50%,-50%) rotate(360deg); }
+    }
+    @keyframes rc-spin-r {
+      from { transform: translate(-50%,-50%) rotate(0deg); }
+      to { transform: translate(-50%,-50%) rotate(-360deg); }
+    }
+
+    /* Node dot on each ring */
+    .ring-node {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      top: -3px; left: 50%;
+      transform: translateX(-50%);
     }
 
     /* Ring colors */
-    .halo-white {
-      border-color: rgba(220,220,255,0.8);
-      box-shadow: 0 0 10px rgba(255,255,255,0.4), 0 0 3px rgba(255,255,255,0.6);
-    }
-    .halo-yellow {
-      border-color: #FFD700;
-      box-shadow: 0 0 12px rgba(255,215,0,0.5), 0 0 4px rgba(255,215,0,0.8);
-    }
-    .halo-purple {
-      border-color: #A855F7;
-      box-shadow: 0 0 14px rgba(168,85,247,0.5), 0 0 5px rgba(168,85,247,0.8);
-    }
-    .halo-black {
-      border-color: #555;
-      box-shadow: 0 0 16px rgba(0,0,0,0.7), 0 0 4px rgba(80,80,120,0.5), inset 0 0 6px rgba(100,100,180,0.15);
-    }
-    .halo-red {
-      border-color: #EF4444;
-      box-shadow: 0 0 18px rgba(239,68,68,0.6), 0 0 6px rgba(239,68,68,0.9);
-      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite, halo-pulse 2s ease-in-out infinite;
-    }
-    .halo-gold {
-      border-color: #FFD700;
-      box-shadow: 0 0 22px rgba(255,215,0,0.7), 0 0 8px rgba(255,255,255,0.5), 0 0 40px rgba(255,215,0,0.2);
-      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite, halo-pulse 1.5s ease-in-out infinite;
-    }
+    .rc-white { border-color: rgba(200,200,255,0.7); box-shadow: 0 0 6px rgba(255,255,255,0.3), inset 0 0 6px rgba(255,255,255,0.05); }
+    .rc-white .ring-node { background: #FFF; box-shadow: 0 0 4px #FFF; }
 
-    @keyframes halo-pulse {
+    .rc-yellow { border-color: rgba(255,215,0,0.8); box-shadow: 0 0 8px rgba(255,215,0,0.4), inset 0 0 8px rgba(255,215,0,0.06); }
+    .rc-yellow .ring-node { background: #FFD700; box-shadow: 0 0 6px #FFD700; }
+
+    .rc-purple { border-color: rgba(168,85,247,0.8); box-shadow: 0 0 10px rgba(168,85,247,0.45), inset 0 0 10px rgba(168,85,247,0.08); }
+    .rc-purple .ring-node { background: #C084FC; box-shadow: 0 0 8px #A855F7; }
+
+    .rc-black { border-color: rgba(80,80,120,0.7); box-shadow: 0 0 12px rgba(30,30,60,0.6), inset 0 0 10px rgba(60,60,100,0.1); }
+    .rc-black::before { border-color: rgba(100,100,180,0.3); opacity: 0.3; }
+    .rc-black .ring-node { background: #8888AA; box-shadow: 0 0 6px rgba(100,100,180,0.6); }
+
+    .rc-red { border-color: rgba(239,68,68,0.85); box-shadow: 0 0 14px rgba(239,68,68,0.5), 0 0 4px rgba(239,68,68,0.8), inset 0 0 10px rgba(239,68,68,0.1); }
+    .rc-red .ring-node { background: #FF6B6B; box-shadow: 0 0 10px #EF4444; width: 8px; height: 8px; top: -4px; }
+
+    .rc-gold {
+      border-color: rgba(255,215,0,0.9);
+      border-width: 3px;
+      box-shadow: 0 0 18px rgba(255,215,0,0.6), 0 0 6px rgba(255,255,255,0.4), 0 0 36px rgba(255,215,0,0.15), inset 0 0 12px rgba(255,215,0,0.1);
+    }
+    .rc-gold::before { border-color: rgba(255,215,0,0.4); opacity: 0.4; }
+    .rc-gold .ring-node { background: #FFF; box-shadow: 0 0 10px #FFD700, 0 0 4px #FFF; width: 8px; height: 8px; top: -4px; }
+
+    /* Pulse for high-level rings */
+    .ring-circle.pulse {
+      animation: rc-appear 0.5s ease forwards, rc-spin var(--dur) linear infinite, rc-pulse 2s ease-in-out infinite;
+    }
+    .ring-circle.pulse-r {
+      animation: rc-appear 0.5s ease forwards, rc-spin-r var(--dur) linear infinite, rc-pulse 2s ease-in-out infinite;
+    }
+    @keyframes rc-pulse {
       0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.5); }
+      50% { filter: brightness(1.4); }
     }
 
     /* Legend */
@@ -1014,7 +1031,7 @@
         <div class="soul-rings-section">
           <div class="soul-rings-label">魂 环 配 置</div>
           <div class="rings-stage" id="r-soul-rings">
-            <div class="rings-center">🧍</div>
+            <div class="rings-center"></div>
           </div>
           <div class="soul-rings-legend">
             <span class="legend-item"><span class="legend-dot" style="background:#FFF"></span>十年</span>
@@ -1891,18 +1908,21 @@
       document.getElementById('r-wuhun-rarity').innerHTML =
         `<span class="wuhun-rarity ${rarity.cls}">${rarity.label}</span>`;
 
-      // Soul rings — Douluo anime 3D halo style
+      // Soul rings — 2D concentric magic circle
       const ringLabels = { white: '十年', yellow: '百年', purple: '千年', black: '万年', red: '十万年', gold: '百万年' };
-      let ringsHtml = '<div class="rings-center">🧘</div>';
-      const stageH = 340;
+      let ringsHtml = '<div class="rings-center"></div>';
       rings.forEach((r, i) => {
-        const size = 100 + i * 12; // ring diameter grows slightly
-        const bottom = 30 + i * 28; // stack from bottom to top
-        const spinDur = 6 + i * 1.5; // outer/higher rings spin slower
+        const size = 40 + i * 28; // concentric: inner small, outer large
+        const isHigh = r === 'red' || r === 'gold';
+        const dir = i % 2 === 0 ? 'cw' : 'ccw';
+        const animClass = isHigh ? (i % 2 === 0 ? 'pulse' : 'pulse-r') : dir;
+        const dur = 12 + (8 - i) * 2; // inner rings spin faster
+        const delay = 0.15 + i * 0.2;
         ringsHtml += `
-          <div class="ring-halo halo-${r} spin"
-               style="width:${size}px;height:${size}px;bottom:${bottom}px;--spin-dur:${spinDur}s"
+          <div class="ring-circle rc-${r} ${animClass}"
+               style="width:${size}px;height:${size}px;--dur:${dur}s;animation-delay:${delay}s,${delay}s,${delay}s"
                title="第${i+1}魂环: ${ringLabels[r]}">
+            <div class="ring-node"></div>
           </div>`;
       });
       document.getElementById('r-soul-rings').innerHTML = ringsHtml;
