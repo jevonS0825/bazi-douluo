@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>八字斗罗 — 封号斗罗生成器</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary: #B31B1B;
+      --primary-light: #E03C3C;
+      --primary-dark: #851212;
+      --bg: #0F0F1A;
+      --card: #1A1A2E;
+      --card-light: #252540;
+      --text: #E8E8F0;
+      --text-secondary: #8888AA;
+      --border: #2A2A45;
+      --gold: #FFD700;
+      --gold-dark: #B8860B;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(179,27,27,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255,215,0,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(100,100,200,0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 32px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Header */
+    .app-header {
+      text-align: center;
+      padding: 20px 0 32px;
+    }
+    .app-header .hero-icon {
+      font-size: 64px;
+      display: inline-block;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 4px 16px rgba(255,215,0,0.3));
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .app-header p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    /* Buttons */
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 600;
+      transition: var(--transition);
+      -webkit-tap-highlight-color: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 16px 24px;
+      width: 100%;
+      min-height: 54px;
+      font-size: 18px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(179,27,27,0.4);
+      letter-spacing: 1px;
+    }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: var(--card-light);
+      color: var(--text);
+      padding: 14px 24px;
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:active { background: var(--border); }
+
+    .btn-small {
+      background: var(--card-light);
+      color: var(--text);
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .btn-small:active { background: var(--border); }
+
+    /* Inputs */
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    input, select {
+      width: 100%;
+      background: var(--card-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      color: var(--text);
+      font-family: inherit;
+      transition: var(--transition);
+      -webkit-appearance: none;
+    }
+    input::placeholder { color: #555; }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(255,215,0,0.1);
+    }
+    select { cursor: pointer; }
+    .form-group { margin-bottom: 20px; }
+    .form-hint { font-size: 13px; color: var(--text-secondary); margin-top: 6px; }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    .form-row .form-group { flex: 1; }
+
+    /* ============ Awakening Animation ============ */
+    .awakening-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: awaken-bg 3s ease forwards;
+    }
+    @keyframes awaken-bg {
+      0% { background: #000; }
+      30% { background: radial-gradient(circle, #1a0a0a 0%, #000 70%); }
+      60% { background: radial-gradient(circle, #2a1010 0%, #0a0a1a 70%); }
+      100% { background: radial-gradient(circle, #1a0a2a 0%, #000 70%); }
+    }
+
+    .awaken-text {
+      font-size: 24px;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 4px;
+      opacity: 0;
+      animation: awaken-text-in 1s ease 0.3s forwards;
+    }
+    @keyframes awaken-text-in {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .awaken-rings {
+      display: flex;
+      gap: 6px;
+      margin-top: 32px;
+      opacity: 0;
+      animation: awaken-rings-in 1s ease 1s forwards;
+    }
+    @keyframes awaken-rings-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .awaken-ring {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: ring-pop 0.3s ease forwards;
+      box-shadow: 0 0 12px currentColor;
+    }
+    .awaken-ring:nth-child(1) { animation-delay: 1.1s; }
+    .awaken-ring:nth-child(2) { animation-delay: 1.25s; }
+    .awaken-ring:nth-child(3) { animation-delay: 1.4s; }
+    .awaken-ring:nth-child(4) { animation-delay: 1.55s; }
+    .awaken-ring:nth-child(5) { animation-delay: 1.7s; }
+    .awaken-ring:nth-child(6) { animation-delay: 1.85s; }
+    .awaken-ring:nth-child(7) { animation-delay: 2.0s; }
+    .awaken-ring:nth-child(8) { animation-delay: 2.15s; }
+    .awaken-ring:nth-child(9) { animation-delay: 2.3s; }
+    @keyframes ring-pop {
+      0% { opacity: 0; transform: scale(0); }
+      60% { opacity: 1; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .awaken-element {
+      margin-top: 24px;
+      font-size: 40px;
+      opacity: 0;
+      animation: element-flash 0.8s ease 2.5s forwards;
+    }
+    @keyframes element-flash {
+      0% { opacity: 0; transform: scale(2) rotate(180deg); }
+      50% { opacity: 1; transform: scale(1.2) rotate(0deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* ============ Result Screen ============ */
+    .result-header {
+      text-align: center;
+      padding: 16px 0 24px;
+    }
+    .result-header h2 {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      letter-spacing: 2px;
+    }
+
+    /* Result Card (for screenshot) */
+    .result-card {
+      background: linear-gradient(180deg, #1A1A2E 0%, #16213E 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      border: 1px solid rgba(255,215,0,0.2);
+      box-shadow: 0 0 40px rgba(255,215,0,0.05), var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .result-name {
+      text-align: center;
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .result-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 12px rgba(255,215,0,0.3);
+    }
+    .result-subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    /* Wuhun section */
+    .wuhun-section {
+      text-align: center;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 24px;
+    }
+    .wuhun-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 12px rgba(255,215,0,0.2));
+    }
+    .wuhun-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .wuhun-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+    .wuhun-element {
+      display: inline-flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .element-badge {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .element-badge.primary { background: rgba(255,215,0,0.15); color: var(--gold); border-color: rgba(255,215,0,0.3); }
+    .element-badge.secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+
+    /* Soul rings */
+    .soul-rings-section {
+      margin-bottom: 24px;
+    }
+    .soul-rings-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .soul-rings {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .soul-ring {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      position: relative;
+    }
+    .soul-ring::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0.3;
+    }
+    .ring-white { background: rgba(255,255,255,0.9); color: #999; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+    .ring-yellow { background: #FFD700; color: #665500; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+    .ring-purple { background: #9B30FF; color: #FFF; box-shadow: 0 0 10px rgba(155,48,255,0.5); }
+    .ring-black { background: #1A1A2E; color: #AAA; box-shadow: 0 0 10px rgba(0,0,0,0.8); border: 1px solid #333; }
+    .ring-red { background: #CC0000; color: #FFF; box-shadow: 0 0 12px rgba(204,0,0,0.6); }
+
+    .soul-rings-legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* BaZi display */
+    .bazi-section {
+      margin-bottom: 24px;
+    }
+    .bazi-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .bazi-pillars {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .bazi-pillar {
+      text-align: center;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 64px;
+    }
+    .bazi-pillar-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .bazi-stem {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .bazi-branch {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Personality */
+    .personality-section {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 20px;
+    }
+    .personality-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .personality-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    /* Watermark */
+    .result-watermark {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.15);
+      margin-top: 20px;
+      letter-spacing: 1px;
+    }
+
+    /* Action buttons */
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .result-actions button { flex: 1; }
+
+    /* Five element colors */
+    .el-metal { color: #C0C0C0; }
+    .el-wood { color: #4CAF50; }
+    .el-water { color: #2196F3; }
+    .el-fire { color: #FF5722; }
+    .el-earth { color: #FF9800; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255,255,255,0.9);
+      color: #000;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 380px) {
+      .container { padding: 24px 16px; }
+      .result-title { font-size: 26px; }
+      .bazi-pillar { min-width: 56px; padding: 10px 12px; }
+      .soul-ring { width: 28px; height: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ========== Screen: Home ========== -->
+    <div id="screen-home">
+      <div class="app-header">
+        <div class="hero-icon">🔮</div>
+        <h1>八字斗罗</h1>
+        <p>输入生辰，觉醒你的封号斗罗身份</p>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <label>你的名字（可选）</label>
+          <input type="text" id="input-name" placeholder="输入姓名或昵称" maxlength="20">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>出生年份</label>
+            <select id="input-year"></select>
+          </div>
+          <div class="form-group">
+            <label>月</label>
+            <select id="input-month"></select>
+          </div>
+          <div class="form-group">
+            <label>日</label>
+            <select id="input-day"></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>出生时辰</label>
+          <select id="input-hour">
+            <option value="-1">不确定</option>
+            <option value="0">子时 (23:00-01:00)</option>
+            <option value="1">丑时 (01:00-03:00)</option>
+            <option value="2">寅时 (03:00-05:00)</option>
+            <option value="3">卯时 (05:00-07:00)</option>
+            <option value="4">辰时 (07:00-09:00)</option>
+            <option value="5">巳时 (09:00-11:00)</option>
+            <option value="6">午时 (11:00-13:00)</option>
+            <option value="7">未时 (13:00-15:00)</option>
+            <option value="8">申时 (15:00-17:00)</option>
+            <option value="9">酉时 (17:00-19:00)</option>
+            <option value="10">戌时 (19:00-21:00)</option>
+            <option value="11">亥时 (21:00-23:00)</option>
+          </select>
+          <div class="form-hint">时辰可不填，但填写后结果更准确</div>
+        </div>
+
+        <button class="btn-primary" onclick="startAwakening()" id="btn-awaken">⚡ 觉醒武魂</button>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Result ========== -->
+    <div id="screen-result" class="hidden">
+      <div class="result-header">
+        <h2>— 封号斗罗 —</h2>
+      </div>
+
+      <div class="result-card" id="result-card">
+        <div class="result-name" id="r-name"></div>
+        <div class="result-title" id="r-title"></div>
+        <div class="result-subtitle" id="r-subtitle"></div>
+
+        <div class="wuhun-section">
+          <div class="wuhun-icon" id="r-wuhun-icon"></div>
+          <div class="wuhun-label">武 魂</div>
+          <div class="wuhun-name" id="r-wuhun-name"></div>
+          <div class="wuhun-element" id="r-elements"></div>
+        </div>
+
+        <div class="soul-rings-section">
+          <div class="soul-rings-label">魂 环 配 置</div>
+          <div class="soul-rings" id="r-soul-rings"></div>
+          <div class="soul-rings-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#FFF"></span>百年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#FFD700"></span>千年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#9B30FF"></span>万年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#1A1A2E;border:1px solid #555"></span>十万年</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#CC0000"></span>百万年</span>
+          </div>
+        </div>
+
+        <div class="bazi-section">
+          <div class="bazi-label">四 柱 八 字</div>
+          <div class="bazi-pillars" id="r-bazi"></div>
+        </div>
+
+        <div class="personality-section">
+          <div class="personality-label">命 格 解 读</div>
+          <div class="personality-text" id="r-personality"></div>
+        </div>
+
+        <div class="result-watermark">八字斗罗 · 封号斗罗生成器</div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-small" onclick="saveImage()">📷 保存图片</button>
+        <button class="btn-small" onclick="resetApp()">🔄 重新测试</button>
+      </div>
+    </div>
+
+    <!-- Awakening overlay (dynamically created) -->
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    // ==================== CONSTANTS ====================
+    const TIAN_GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    const DI_ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const WU_XING = ['木','木','火','火','土','土','金','金','水','水']; // 天干→五行
+    const DI_ZHI_WX = ['水','土','木','木','土','火','火','土','金','金','土','水']; // 地支→五行
+    const SHENG_XIAO = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+    const WX_NAMES = ['金','木','水','火','土'];
+    const WX_EMOJI = { '金':'⚔️', '木':'🌿', '水':'🌊', '火':'🔥', '土':'🏔️' };
+    const WX_CLASS = { '金':'el-metal', '木':'el-wood', '水':'el-water', '火':'el-fire', '土':'el-earth' };
+
+    // Solar term approximate dates [month, day] for month boundaries
+    // Each entry marks the START of that BaZi month
+    const SOLAR_TERMS = [
+      [2, 4],   // 立春 → 寅月(1)
+      [3, 6],   // 惊蛰 → 卯月(2)
+      [4, 5],   // 清明 → 辰月(3)
+      [5, 6],   // 立夏 → 巳月(4)
+      [6, 6],   // 芒种 → 午月(5)
+      [7, 7],   // 小暑 → 未月(6)
+      [8, 8],   // 立秋 → 申月(7)
+      [9, 8],   // 白露 → 酉月(8)
+      [10, 8],  // 寒露 → 戌月(9)
+      [11, 7],  // 立冬 → 亥月(10)
+      [12, 7],  // 大雪 → 子月(11)
+      [1, 6],   // 小寒 → 丑月(12)
+    ];
+
+    // ==================== BAZI ENGINE ====================
+
+    // Julian Day Number from Gregorian date
+    function getJDN(year, month, day) {
+      const a = Math.floor((14 - month) / 12);
+      const y = year + 4800 - a;
+      const m = month + 12 * a - 3;
+      return day + Math.floor((153 * m + 2) / 5) + 365 * y +
+             Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+    }
+
+    // Year pillar (以立春为界)
+    function getYearPillar(year, month, day) {
+      // Before 立春 (approx Feb 4), use previous year
+      let y = year;
+      if (month < 2 || (month === 2 && day < 4)) {
+        y -= 1;
+      }
+      const stemIdx = (y - 4) % 10;
+      const branchIdx = (y - 4) % 12;
+      return { stem: stemIdx, branch: branchIdx };
+    }
+
+    // Month pillar
+    function getMonthPillar(year, month, day) {
+      const yearPillar = getYearPillar(year, month, day);
+
+      // Determine which BaZi month (1-12, where 1=寅月)
+      let baziMonth = 0;
+      // Check from 小寒(month12) backwards
+      if (month === 1 && day >= 6) baziMonth = 12;
+      else if (month === 1) baziMonth = 11; // before 小寒, still 子月
+      else {
+        baziMonth = 11; // default to 子月(11) for Dec before 大雪
+        for (let i = 0; i < 11; i++) {
+          const [tm, td] = SOLAR_TERMS[i];
+          const [nm, nd] = SOLAR_TERMS[i + 1] || [13, 1];
+          if (month === tm && day >= td) {
+            // Check if we're past this term but before next
+            if (i + 1 < 11) {
+              const [nextM, nextD] = SOLAR_TERMS[i + 1];
+              if (month < nextM || (month === nextM && day < nextD)) {
+                baziMonth = i + 1;
+                break;
+              }
+            } else {
+              baziMonth = i + 1;
+              break;
+            }
+          }
+        }
+        // Simpler approach: find the last solar term we've passed
+        let found = false;
+        for (let i = 10; i >= 0; i--) {
+          const [tm, td] = SOLAR_TERMS[i];
+          if (month > tm || (month === tm && day >= td)) {
+            baziMonth = i + 1;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // Before 立春 (Feb 4), we're in 丑月(12) of previous year
+          baziMonth = 12;
+        }
+      }
+
+      // Month branch: 寅(2) for month 1, 卯(3) for month 2, etc.
+      const branchIdx = (baziMonth + 1) % 12;
+
+      // Month stem: 五虎遁 (based on year stem)
+      // 甲己之年丙作首(丙寅), 乙庚之年戊作首, 丙辛之年庚作首, 丁壬之年壬作首, 戊癸之年甲作首
+      const yearStem = yearPillar.stem;
+      const monthStemStart = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0]; // 五虎遁起始天干
+      const stemIdx = (monthStemStart[yearStem] + baziMonth - 1) % 10;
+
+      return { stem: stemIdx, branch: branchIdx };
+    }
+
+    // Day pillar (based on JDN)
+    function getDayPillar(year, month, day) {
+      const jdn = getJDN(year, month, day);
+      // Reference: use known date. Jan 1, 1900 = JDN 2415021, was 甲戌日 (stem=0甲, branch=10戌, index=10)
+      // dayIndex = (jdn - 2415021 + 10) % 60
+      const dayIndex = ((jdn - 2415021 + 10) % 60 + 60) % 60;
+      return { stem: dayIndex % 10, branch: dayIndex % 12 };
+    }
+
+    // Hour pillar
+    function getHourPillar(dayStem, hourBranchIdx) {
+      // 五鼠遁: 甲己还加甲(甲子), 乙庚丙作初, 丙辛从戊起, 丁壬庚子居, 戊癸壬子是
+      const hourStemStart = [0, 2, 4, 6, 8, 0, 2, 4, 6, 8];
+      const stemIdx = (hourStemStart[dayStem] + hourBranchIdx) % 10;
+      return { stem: stemIdx, branch: hourBranchIdx };
+    }
+
+    // Full BaZi calculation
+    function calculateBaZi(year, month, day, hourIdx) {
+      const yearP = getYearPillar(year, month, day);
+      const monthP = getMonthPillar(year, month, day);
+      const dayP = getDayPillar(year, month, day);
+      const hourP = hourIdx >= 0 ? getHourPillar(dayP.stem, hourIdx) : null;
+
+      // Count five elements
+      const wxCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+      const pillars = [yearP, monthP, dayP];
+      if (hourP) pillars.push(hourP);
+
+      pillars.forEach(p => {
+        wxCount[WU_XING[p.stem]]++;
+        wxCount[DI_ZHI_WX[p.branch]]++;
+      });
+
+      // Sort elements by count
+      const sorted = Object.entries(wxCount).sort((a, b) => b[1] - a[1]);
+      const primary = sorted[0][0];
+      const secondary = sorted[1][0];
+      const missing = sorted.filter(([, v]) => v === 0).map(([k]) => k);
+
+      // Shengxiao (zodiac)
+      const zodiac = SHENG_XIAO[yearP.branch];
+
+      return {
+        year: yearP, month: monthP, day: dayP, hour: hourP,
+        wxCount, primary, secondary, missing, zodiac,
+        dayMaster: WU_XING[dayP.stem],
+        dayMasterName: TIAN_GAN[dayP.stem]
+      };
+    }
+
+    // ==================== TITLE GENERATION ====================
+
+    const TITLE_PREFIXES = {
+      '金': ['霜刃','寒铁','白虎','辛锋','金翼','破军','天刃','秋杀','银月','锐金','霸刃','星辰'],
+      '木': ['青龙','灵木','苍生','碧落','春华','翠微','万木','青莲','森罗','灵叶','碧玉','天青'],
+      '水': ['玄冥','冰凰','深渊','幽澜','海神','寒月','暗潮','清泉','雪影','泓渊','冰魄','沧海'],
+      '火': ['炎阳','赤焰','焚天','烈日','火舞','丹凤','灼灵','九焰','烈焰','紫焰','流火','天炎'],
+      '土': ['磐石','坤灵','镇岳','厚土','泰山','沉岳','黄天','玄武','大地','重山','乾坤','岩皇']
+    };
+
+    const WUHUN_NAMES = {
+      '金': ['七杀剑','白虎战甲','昊天锤','破军枪','玄铁盾','凤翎剑','银龙爪','天霜刀','九天神铠','裁决之刃'],
+      '木': ['青龙圣木','蓝银草','碧落花','万年灵芝','七宝琉璃塔','昙花','幽香绫','生命之树','翡翠龙','万木青藤'],
+      '水': ['海神三叉戟','冰碧帝皇蝎','寒玉床','幽冥灵猫','碧波剑','九幽白虎','冰凤','沧澜珠','深海之心','玄冰蟾'],
+      '火': ['炎龙王','赤焰锤','烈焰狮','火凤凰','九天玄火','紫极魔瞳','烈阳枪','焚天炉','赤霄剑','炎麒麟'],
+      '土': ['大地之锤','黄金圣龙','泰坦巨拳','玄武盾','地裂锤','镇魂碑','山岳巨灵','坤元鼎','厚土铠','万钧鼎']
+    };
+
+    const WUHUN_ICONS = {
+      '金': ['⚔️','🛡️','🗡️','🏹','⚒️'],
+      '木': ['🌳','🌿','🍀','💐','🎋'],
+      '水': ['🔱','❄️','🌊','💎','🐉'],
+      '火': ['🔥','☀️','🌋','🦅','⚡'],
+      '土': ['🏔️','🐢','💎','🗿','⛰️']
+    };
+
+    // Deterministic hash from birthday
+    function hashBirthday(year, month, day, hour) {
+      let h = year * 10000 + month * 100 + day + (hour >= 0 ? hour * 7 : 0);
+      h = ((h >> 16) ^ h) * 0x45d9f3b;
+      h = ((h >> 16) ^ h) * 0x45d9f3b;
+      h = (h >> 16) ^ h;
+      return Math.abs(h);
+    }
+
+    function generateTitle(bazi, year, month, day, hourIdx) {
+      const hash = hashBirthday(year, month, day, hourIdx);
+      const prefixes = TITLE_PREFIXES[bazi.primary];
+      const prefix = prefixes[hash % prefixes.length];
+
+      const wuhunList = WUHUN_NAMES[bazi.primary];
+      const wuhun = wuhunList[(hash >> 4) % wuhunList.length];
+
+      const iconList = WUHUN_ICONS[bazi.primary];
+      const icon = iconList[(hash >> 8) % iconList.length];
+
+      return {
+        title: prefix + '斗罗',
+        wuhun: wuhun,
+        icon: icon
+      };
+    }
+
+    // ==================== SOUL RINGS ====================
+
+    function generateSoulRings(bazi, year, month, day) {
+      const hash = hashBirthday(year, month, day, -1);
+      const totalWx = Object.values(bazi.wxCount).reduce((a, b) => a + b, 0);
+      const primaryCount = bazi.wxCount[bazi.primary];
+      const strength = primaryCount / totalWx; // 0-1
+
+      // Generate 9 rings based on strength
+      // Higher strength = more high-level rings
+      const rings = [];
+      for (let i = 0; i < 9; i++) {
+        const threshold = (i + 1) / 9; // 0.11 to 1.0
+        const noise = ((hash >> (i * 3)) & 7) / 28; // small random factor
+
+        if (threshold > 0.85 + noise) {
+          rings.push('red');     // 百万年
+        } else if (threshold > 0.65 - strength * 0.15 + noise) {
+          rings.push('black');   // 十万年
+        } else if (threshold > 0.4 - strength * 0.1 + noise) {
+          rings.push('purple');  // 万年
+        } else if (threshold > 0.18 + noise) {
+          rings.push('yellow');  // 千年
+        } else {
+          rings.push('white');   // 百年
+        }
+      }
+
+      return rings;
+    }
+
+    // ==================== PERSONALITY ====================
+
+    const DAY_MASTER_PERSONALITY = {
+      '甲': {
+        base: '甲木日主，如参天大树。',
+        desc: '你性格正直磊落，胸怀宽广，天生具有领袖气质。在魂师世界中，你是团队中最可靠的中流砥柱，攻防兼备，越战越勇。',
+        type: '攻防兼修型魂师'
+      },
+      '乙': {
+        base: '乙木日主，如藤蔓花草。',
+        desc: '你柔韧善变、随机应变的能力极强。看似温和实则韧性十足，善于在逆境中找到生机。你的魂技灵活多变，辅助与控制皆为上乘。',
+        type: '控制辅助型魂师'
+      },
+      '丙': {
+        base: '丙火日主，如太阳当空。',
+        desc: '你热情开朗、光明磊落，天生自带感染力。魂力修炼突飞猛进，攻击力冠绝同辈。你是战场上最耀眼的存在，一出手便惊天动地。',
+        type: '强攻爆发型魂师'
+      },
+      '丁': {
+        base: '丁火日主，如烛火星光。',
+        desc: '你外表温和内心炽热，洞察力极强，善于发现他人忽略的细节。你的魂技精准致命，擅长以巧破力，是战场上的智慧担当。',
+        type: '精准打击型魂师'
+      },
+      '戊': {
+        base: '戊土日主，如高山厚土。',
+        desc: '你沉稳厚重、包容万物，天生具有不可动摇的意志力。你的防御力无人能及，是团队最坚实的后盾，越到绝境越能爆发惊人力量。',
+        type: '防御坦克型魂师'
+      },
+      '己': {
+        base: '己土日主，如田园沃土。',
+        desc: '你温和谦逊、善于滋养，身边的人都因你而变得更强。你是天生的辅助型魂师，治愈与增益能力出众，团队有你便战力倍增。',
+        type: '治愈辅助型魂师'
+      },
+      '庚': {
+        base: '庚金日主，如刀剑锋刃。',
+        desc: '你刚毅果决、行动力极强，信奉实力为尊。你的攻击直接而致命，擅长正面硬刚，是魂师世界中令人闻风丧胆的战斗机器。',
+        type: '近战格斗型魂师'
+      },
+      '辛': {
+        base: '辛金日主，如珠玉宝石。',
+        desc: '你外表精致内心坚定，追求极致与完美。你的魂技华丽而致命，看似优雅实则杀机暗藏。你是那种让对手在赞叹中落败的天才。',
+        type: '技巧华丽型魂师'
+      },
+      '壬': {
+        base: '壬水日主，如江河大海。',
+        desc: '你智慧深邃、气度恢弘，善于从宏观角度把控全局。你的魂力浩瀚如海，持久战中永远是最后的赢家。你天生适合统帅大军。',
+        type: '战略指挥型魂师'
+      },
+      '癸': {
+        base: '癸水日主，如雨露甘泉。',
+        desc: '你灵巧聪慧、细水长流，看似平凡实则深不可测。你的魂技变幻莫测，敌人永远猜不到你的下一招。你是隐藏在暗处的终极王牌。',
+        type: '暗影奇袭型魂师'
+      }
+    };
+
+    function generatePersonality(bazi) {
+      const dm = bazi.dayMasterName;
+      const info = DAY_MASTER_PERSONALITY[dm];
+      const wxEmoji = WX_EMOJI[bazi.primary];
+
+      let text = `${info.base}\n\n${info.desc}\n\n`;
+      text += `🎯 魂师定位：${info.type}\n`;
+      text += `${wxEmoji} 主属性「${bazi.primary}」`;
+
+      if (bazi.missing.length > 0) {
+        text += `，缺「${bazi.missing.join('、')}」`;
+      }
+
+      text += `\n🐾 生肖：${bazi.zodiac}`;
+
+      return text;
+    }
+
+    // ==================== UI ====================
+
+    function initSelectors() {
+      const yearSel = document.getElementById('input-year');
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear; y >= 1940; y--) {
+        yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+      }
+      yearSel.value = 2000;
+
+      const monthSel = document.getElementById('input-month');
+      for (let m = 1; m <= 12; m++) {
+        monthSel.innerHTML += `<option value="${m}">${m}月</option>`;
+      }
+
+      const daySel = document.getElementById('input-day');
+      for (let d = 1; d <= 31; d++) {
+        daySel.innerHTML += `<option value="${d}">${d}日</option>`;
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function startAwakening() {
+      const year = parseInt(document.getElementById('input-year').value);
+      const month = parseInt(document.getElementById('input-month').value);
+      const day = parseInt(document.getElementById('input-day').value);
+      const hourIdx = parseInt(document.getElementById('input-hour').value);
+
+      // Validate date
+      const testDate = new Date(year, month - 1, day);
+      if (testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
+        showToast('日期无效，请检查');
+        return;
+      }
+
+      // Calculate
+      const bazi = calculateBaZi(year, month, day, hourIdx);
+      const titleInfo = generateTitle(bazi, year, month, day, hourIdx);
+      const rings = generateSoulRings(bazi, year, month, day);
+      const personality = generatePersonality(bazi);
+
+      // Show awakening animation
+      showAwakeningAnimation(bazi, rings, () => {
+        renderResult(bazi, titleInfo, rings, personality);
+      });
+    }
+
+    function showAwakeningAnimation(bazi, rings, callback) {
+      const overlay = document.createElement('div');
+      overlay.className = 'awakening-overlay';
+
+      const ringColors = {
+        white: '#FFFFFF', yellow: '#FFD700', purple: '#9B30FF',
+        black: '#333', red: '#CC0000'
+      };
+
+      overlay.innerHTML = `
+        <div class="awaken-text">武魂觉醒中...</div>
+        <div class="awaken-rings">
+          ${rings.map(r => `<div class="awaken-ring" style="background:${ringColors[r]};color:${ringColors[r]}"></div>`).join('')}
+        </div>
+        <div class="awaken-element">${WX_EMOJI[bazi.primary]}</div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        overlay.style.transition = 'opacity 0.5s';
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.remove();
+          callback();
+        }, 500);
+      }, 3500);
+    }
+
+    function renderResult(bazi, titleInfo, rings, personality) {
+      document.getElementById('screen-home').classList.add('hidden');
+      document.getElementById('screen-result').classList.remove('hidden');
+
+      const name = document.getElementById('input-name').value.trim() || '无名魂师';
+      document.getElementById('r-name').textContent = name;
+      document.getElementById('r-title').textContent = titleInfo.title;
+      document.getElementById('r-subtitle').textContent = `${bazi.dayMasterName}${WU_XING[bazi.day.stem]}日主 · ${bazi.zodiac}年生`;
+
+      // Wuhun
+      document.getElementById('r-wuhun-icon').textContent = titleInfo.icon;
+      document.getElementById('r-wuhun-name').textContent = titleInfo.wuhun;
+
+      // Element badges
+      const elemHtml = `
+        <span class="element-badge primary">${WX_EMOJI[bazi.primary]} ${bazi.primary}主</span>
+        <span class="element-badge secondary">${WX_EMOJI[bazi.secondary]} ${bazi.secondary}辅</span>
+      `;
+      document.getElementById('r-elements').innerHTML = elemHtml;
+
+      // Soul rings
+      const ringLabels = { white: '百年', yellow: '千年', purple: '万年', black: '十万年', red: '百万年' };
+      const ringsHtml = rings.map((r, i) =>
+        `<div class="soul-ring ring-${r}" title="第${i+1}魂环: ${ringLabels[r]}">${i+1}</div>`
+      ).join('');
+      document.getElementById('r-soul-rings').innerHTML = ringsHtml;
+
+      // BaZi pillars
+      const pillars = [
+        { label: '年柱', pillar: bazi.year },
+        { label: '月柱', pillar: bazi.month },
+        { label: '日柱', pillar: bazi.day }
+      ];
+      if (bazi.hour) {
+        pillars.push({ label: '时柱', pillar: bazi.hour });
+      }
+
+      const baziHtml = pillars.map(({ label, pillar }) => {
+        const stemWx = WU_XING[pillar.stem];
+        const branchWx = DI_ZHI_WX[pillar.branch];
+        return `
+          <div class="bazi-pillar">
+            <div class="bazi-pillar-label">${label}</div>
+            <div class="bazi-stem ${WX_CLASS[stemWx]}">${TIAN_GAN[pillar.stem]}</div>
+            <div class="bazi-branch ${WX_CLASS[branchWx]}">${DI_ZHI[pillar.branch]}</div>
+          </div>`;
+      }).join('');
+      document.getElementById('r-bazi').innerHTML = baziHtml;
+
+      // Personality
+      document.getElementById('r-personality').innerHTML = personality.replace(/\n/g, '<br>');
+    }
+
+    function resetApp() {
+      document.getElementById('screen-result').classList.add('hidden');
+      document.getElementById('screen-home').classList.remove('hidden');
+    }
+
+    async function saveImage() {
+      try {
+        showToast('正在生成图片...');
+        const card = document.getElementById('result-card');
+        const canvas = await html2canvas(card, {
+          backgroundColor: '#1A1A2E',
+          scale: 2,
+          useCORS: true,
+          logging: false
+        });
+
+        // Try to download
+        const link = document.createElement('a');
+        link.download = '八字斗罗-封号.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('图片已保存！');
+      } catch (e) {
+        showToast('保存失败，请截图保存');
+      }
+    }
+
+    // ==================== INIT ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      initSelectors();
+    });
+  </script>
+</body>
+</html>
