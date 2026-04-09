@@ -351,7 +351,7 @@
     .element-badge.primary { background: rgba(255,215,0,0.15); color: var(--gold); border-color: rgba(255,215,0,0.3); }
     .element-badge.secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
 
-    /* Soul rings */
+    /* ===== Soul Rings — Douluo Style Orbiting ===== */
     .soul-rings-section {
       margin-bottom: 24px;
     }
@@ -360,71 +360,113 @@
       color: var(--text-secondary);
       letter-spacing: 1px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
-    .soul-rings {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-    .soul-ring {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
+
+    /* Orbiting rings container */
+    .rings-stage {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
       position: relative;
     }
-    .soul-ring::after {
-      content: '';
+
+    /* Each orbit is a concentric ellipse */
+    .ring-orbit {
       position: absolute;
-      inset: -3px;
       border-radius: 50%;
-      border: 2px solid currentColor;
-      opacity: 0.3;
+      border: 3px solid transparent;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: orbit-appear 0.6s ease forwards;
     }
-    .ring-white { background: rgba(255,255,255,0.9); color: #999; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
-    .ring-yellow { background: #FFD700; color: #665500; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
-    .ring-purple { background: #9B30FF; color: #FFF; box-shadow: 0 0 10px rgba(155,48,255,0.5); }
-    .ring-black { background: #1A1A2E; color: #AAA; box-shadow: 0 0 10px rgba(0,0,0,0.8); border: 1px solid #333; }
-    .ring-red { background: #CC0000; color: #FFF; box-shadow: 0 0 12px rgba(204,0,0,0.6); }
-    .ring-gold { background: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700); color: #8B6914; box-shadow: 0 0 16px rgba(255,215,0,0.7), 0 0 4px rgba(255,255,255,0.5); border: 1px solid rgba(255,215,0,0.6); }
 
-    /* Soul ring animations */
-    .soul-ring {
-      animation: ring-appear 0.4s ease both, ring-glow 2.5s ease-in-out infinite;
+    /* Staggered appearance: 1st ring appears first, 9th last */
+    .ring-orbit:nth-child(1) { animation-delay: 0.2s; }
+    .ring-orbit:nth-child(2) { animation-delay: 0.45s; }
+    .ring-orbit:nth-child(3) { animation-delay: 0.7s; }
+    .ring-orbit:nth-child(4) { animation-delay: 0.95s; }
+    .ring-orbit:nth-child(5) { animation-delay: 1.2s; }
+    .ring-orbit:nth-child(6) { animation-delay: 1.45s; }
+    .ring-orbit:nth-child(7) { animation-delay: 1.7s; }
+    .ring-orbit:nth-child(8) { animation-delay: 1.95s; }
+    .ring-orbit:nth-child(9) { animation-delay: 2.2s; }
+
+    @keyframes orbit-appear {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+      60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
-    .soul-ring:nth-child(1) { animation-delay: 0.1s, 0.1s; }
-    .soul-ring:nth-child(2) { animation-delay: 0.2s, 0.3s; }
-    .soul-ring:nth-child(3) { animation-delay: 0.3s, 0.5s; }
-    .soul-ring:nth-child(4) { animation-delay: 0.4s, 0.7s; }
-    .soul-ring:nth-child(5) { animation-delay: 0.5s, 0.9s; }
-    .soul-ring:nth-child(6) { animation-delay: 0.6s, 1.1s; }
-    .soul-ring:nth-child(7) { animation-delay: 0.7s, 1.3s; }
-    .soul-ring:nth-child(8) { animation-delay: 0.8s, 1.5s; }
-    .soul-ring:nth-child(9) { animation-delay: 0.9s, 1.7s; }
-    @keyframes ring-appear {
-      from { opacity: 0; transform: scale(0) rotate(180deg); }
-      to { opacity: 1; transform: scale(1) rotate(0deg); }
+
+    /* Continuous spin — odd rings clockwise, even counter-clockwise */
+    .ring-orbit.spinning { animation: orbit-appear 0.6s ease forwards, orbit-spin var(--spin-duration) linear infinite; }
+    .ring-orbit.spinning-reverse { animation: orbit-appear 0.6s ease forwards, orbit-spin-reverse var(--spin-duration) linear infinite; }
+
+    @keyframes orbit-spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    @keyframes ring-glow {
+    @keyframes orbit-spin-reverse {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(-360deg); }
+    }
+
+    /* Ring colors — border + glow */
+    .orbit-white { border-color: rgba(255,255,255,0.7); box-shadow: 0 0 8px rgba(255,255,255,0.3), inset 0 0 8px rgba(255,255,255,0.1); }
+    .orbit-yellow { border-color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.4), inset 0 0 10px rgba(255,215,0,0.15); }
+    .orbit-purple { border-color: #9B30FF; box-shadow: 0 0 12px rgba(155,48,255,0.45), inset 0 0 12px rgba(155,48,255,0.15); }
+    .orbit-black { border-color: #444; box-shadow: 0 0 14px rgba(0,0,0,0.6), inset 0 0 10px rgba(50,50,80,0.3); }
+    .orbit-red { border-color: #CC0000; box-shadow: 0 0 16px rgba(204,0,0,0.5), inset 0 0 12px rgba(204,0,0,0.2); }
+    .orbit-gold {
+      border-color: #FFD700;
+      border-image: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700) 1;
+      border-image: none;
+      border-color: #FFD700;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 0 6px rgba(255,255,255,0.3), inset 0 0 14px rgba(255,215,0,0.2);
+    }
+
+    /* Glow pulse for higher rings */
+    .orbit-red, .orbit-gold { animation-name: orbit-appear, orbit-spin; }
+    .ring-orbit.high-glow { filter: brightness(1); animation: orbit-appear 0.6s ease forwards, orbit-spin var(--spin-duration) linear infinite, ring-pulse 2s ease-in-out infinite; }
+    .ring-orbit.high-glow-reverse { animation: orbit-appear 0.6s ease forwards, orbit-spin-reverse var(--spin-duration) linear infinite, ring-pulse 2s ease-in-out infinite; }
+    @keyframes ring-pulse {
       0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.3); }
-    }
-    .ring-red, .ring-gold { animation: ring-appear 0.4s ease both, ring-glow-strong 2s ease-in-out infinite; }
-    @keyframes ring-glow-strong {
-      0%, 100% { filter: brightness(1); transform: scale(1); }
-      50% { filter: brightness(1.5); transform: scale(1.08); }
+      50% { filter: brightness(1.4); }
     }
 
+    /* Bright dot on each ring to show rotation */
+    .ring-dot {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .orbit-white .ring-dot { background: #FFF; box-shadow: 0 0 4px #FFF; }
+    .orbit-yellow .ring-dot { background: #FFD700; box-shadow: 0 0 6px #FFD700; }
+    .orbit-purple .ring-dot { background: #BF5FFF; box-shadow: 0 0 8px #9B30FF; }
+    .orbit-black .ring-dot { background: #666; box-shadow: 0 0 6px #333; }
+    .orbit-red .ring-dot { background: #FF4444; box-shadow: 0 0 8px #CC0000; width: 8px; height: 8px; top: -4px; }
+    .orbit-gold .ring-dot { background: #FFF; box-shadow: 0 0 10px #FFD700, 0 0 4px #FFF; width: 8px; height: 8px; top: -4px; }
+
+    /* Center silhouette */
+    .rings-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      z-index: 10;
+      filter: drop-shadow(0 0 16px rgba(255,215,0,0.3));
+    }
+
+    /* Legend */
     .soul-rings-legend {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-top: 12px;
+      gap: 10px;
+      margin-top: 16px;
       flex-wrap: wrap;
     }
     .legend-item {
@@ -439,6 +481,25 @@
       height: 8px;
       border-radius: 50%;
     }
+
+    /* Small dot version for skill list */
+    .skill-ring-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .sdot-white { background: rgba(255,255,255,0.9); color: #999; }
+    .sdot-yellow { background: #FFD700; color: #665500; }
+    .sdot-purple { background: #9B30FF; color: #FFF; }
+    .sdot-black { background: #1A1A2E; color: #AAA; border: 1px solid #333; }
+    .sdot-red { background: #CC0000; color: #FFF; }
+    .sdot-gold { background: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700); color: #8B6914; }
 
     /* BaZi display */
     .bazi-section {
@@ -852,7 +913,9 @@
 
         <div class="soul-rings-section">
           <div class="soul-rings-label">魂 环 配 置</div>
-          <div class="soul-rings" id="r-soul-rings"></div>
+          <div class="rings-stage" id="r-soul-rings">
+            <div class="rings-center">🧍</div>
+          </div>
           <div class="soul-rings-legend">
             <span class="legend-item"><span class="legend-dot" style="background:#FFF"></span>十年</span>
             <span class="legend-item"><span class="legend-dot" style="background:#FFD700"></span>百年</span>
@@ -1126,23 +1189,28 @@
       const hash = hashBirthday(year, month, day, -1);
       const totalWx = Object.values(bazi.wxCount).reduce((a, b) => a + b, 0);
       const primaryCount = bazi.wxCount[bazi.primary];
-      const strength = primaryCount / totalWx;
+      const strength = primaryCount / totalWx; // 0~1, higher = stronger BaZi
 
-      // 6 levels: white(十年) yellow(百年) purple(千年) black(万年) red(十万年) gold(百万年)
+      // Strength bonus: strong BaZi significantly boosts ring quality
+      // strength ~0.25 = average, ~0.375+ = very strong
+      const bonus = Math.max(0, (strength - 0.2) * 2.5); // 0~0.75
+
       const rings = [];
       for (let i = 0; i < 9; i++) {
-        const threshold = (i + 1) / 9;
-        const noise = ((hash >> (i * 3)) & 7) / 28;
+        const pos = (i + 1) / 9; // 0.11 ~ 1.0
+        const noise = ((hash >> (i * 3)) & 7) / 35;
+        // Effective level = position + BaZi bonus
+        const level = pos + bonus * 0.3 - noise;
 
-        if (threshold > 0.92 + noise) {
-          rings.push('gold');    // 百万年
-        } else if (threshold > 0.78 + noise) {
+        if (level > 1.05) {
+          rings.push('gold');    // 百万年 — only the strongest BaZi
+        } else if (level > 0.88) {
           rings.push('red');     // 十万年
-        } else if (threshold > 0.6 - strength * 0.12 + noise) {
+        } else if (level > 0.68) {
           rings.push('black');   // 万年
-        } else if (threshold > 0.38 - strength * 0.1 + noise) {
+        } else if (level > 0.45) {
           rings.push('purple');  // 千年
-        } else if (threshold > 0.15 + noise) {
+        } else if (level > 0.2) {
           rings.push('yellow');  // 百年
         } else {
           rings.push('white');   // 十年
@@ -1465,11 +1533,26 @@
       `;
       document.getElementById('r-elements').innerHTML = elemHtml;
 
-      // Soul rings
+      // Soul rings — orbiting Douluo style
       const ringLabels = { white: '十年', yellow: '百年', purple: '千年', black: '万年', red: '十万年', gold: '百万年' };
-      const ringsHtml = rings.map((r, i) =>
-        `<div class="soul-ring ring-${r}" title="第${i+1}魂环: ${ringLabels[r]}">${i+1}</div>`
-      ).join('');
+      const baseSize = 50; // innermost ring diameter
+      const step = 24;     // size increment per ring
+      let ringsHtml = '<div class="rings-center">🧍</div>';
+      rings.forEach((r, i) => {
+        const size = baseSize + step * i;
+        const isHigh = (r === 'red' || r === 'gold');
+        const isEven = i % 2 === 1;
+        const spinDur = 8 + i * 2; // outer rings spin slower
+        const spinClass = isHigh
+          ? (isEven ? 'high-glow-reverse' : 'high-glow')
+          : (isEven ? 'spinning-reverse' : 'spinning');
+        ringsHtml += `
+          <div class="ring-orbit orbit-${r} ${spinClass}"
+               style="width:${size}px;height:${size}px;--spin-duration:${spinDur}s;animation-delay:${0.2 + i * 0.25}s,${0.2 + i * 0.25}s,${0.2 + i * 0.25}s"
+               title="第${i+1}魂环: ${ringLabels[r]}">
+            <div class="ring-dot"></div>
+          </div>`;
+      });
       document.getElementById('r-soul-rings').innerHTML = ringsHtml;
 
       // BaZi pillars
@@ -1554,13 +1637,13 @@
         const skillsSection = document.getElementById('skills-section');
         skillsSection.classList.remove('hidden');
 
-        const ringClasses = { white: 'ring-white', yellow: 'ring-yellow', purple: 'ring-purple', black: 'ring-black', red: 'ring-red', gold: 'ring-gold' };
+        const dotClasses = { white: 'sdot-white', yellow: 'sdot-yellow', purple: 'sdot-purple', black: 'sdot-black', red: 'sdot-red', gold: 'sdot-gold' };
 
         const skillsHtml = aiData.skills.map((skill, i) => {
-          const ringClass = rings[i] ? ringClasses[rings[i]] : 'ring-yellow';
+          const dotClass = rings[i] ? dotClasses[rings[i]] : 'sdot-yellow';
           return `
             <div class="skill-item" style="animation-delay:${i * 0.08}s">
-              <div class="skill-num ${ringClass}">${i + 1}</div>
+              <div class="skill-ring-dot ${dotClass}">${i + 1}</div>
               <div class="skill-content">
                 <div class="skill-name">${skill.name}</div>
                 <div class="skill-desc">${skill.desc}</div>
