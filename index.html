@@ -351,7 +351,7 @@
     .element-badge.primary { background: rgba(255,215,0,0.15); color: var(--gold); border-color: rgba(255,215,0,0.3); }
     .element-badge.secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
 
-    /* ===== Soul Rings — Douluo Style Orbiting ===== */
+    /* ===== Soul Rings — Douluo Anime Style ===== */
     .soul-rings-section {
       margin-bottom: 24px;
     }
@@ -363,102 +363,96 @@
       margin-bottom: 12px;
     }
 
-    /* Orbiting rings container */
+    /* 3D perspective stage */
     .rings-stage {
-      width: 280px;
-      height: 280px;
+      width: 260px;
+      height: 340px;
       margin: 0 auto;
       position: relative;
+      perspective: 600px;
     }
 
-    /* Each orbit is a concentric ellipse */
-    .ring-orbit {
-      position: absolute;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      animation: orbit-appear 0.6s ease forwards;
-    }
-
-    /* Staggered appearance: 1st ring appears first, 9th last */
-    .ring-orbit:nth-child(1) { animation-delay: 0.2s; }
-    .ring-orbit:nth-child(2) { animation-delay: 0.45s; }
-    .ring-orbit:nth-child(3) { animation-delay: 0.7s; }
-    .ring-orbit:nth-child(4) { animation-delay: 0.95s; }
-    .ring-orbit:nth-child(5) { animation-delay: 1.2s; }
-    .ring-orbit:nth-child(6) { animation-delay: 1.45s; }
-    .ring-orbit:nth-child(7) { animation-delay: 1.7s; }
-    .ring-orbit:nth-child(8) { animation-delay: 1.95s; }
-    .ring-orbit:nth-child(9) { animation-delay: 2.2s; }
-
-    @keyframes orbit-appear {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
-      60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-
-    /* Continuous spin — odd rings clockwise, even counter-clockwise */
-    .ring-orbit.spinning { animation: orbit-appear 0.6s ease forwards, orbit-spin var(--spin-duration) linear infinite; }
-    .ring-orbit.spinning-reverse { animation: orbit-appear 0.6s ease forwards, orbit-spin-reverse var(--spin-duration) linear infinite; }
-
-    @keyframes orbit-spin {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    @keyframes orbit-spin-reverse {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(-360deg); }
-    }
-
-    /* Ring colors — border + glow */
-    .orbit-white { border-color: rgba(255,255,255,0.7); box-shadow: 0 0 8px rgba(255,255,255,0.3), inset 0 0 8px rgba(255,255,255,0.1); }
-    .orbit-yellow { border-color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.4), inset 0 0 10px rgba(255,215,0,0.15); }
-    .orbit-purple { border-color: #9B30FF; box-shadow: 0 0 12px rgba(155,48,255,0.45), inset 0 0 12px rgba(155,48,255,0.15); }
-    .orbit-black { border-color: #444; box-shadow: 0 0 14px rgba(0,0,0,0.6), inset 0 0 10px rgba(50,50,80,0.3); }
-    .orbit-red { border-color: #CC0000; box-shadow: 0 0 16px rgba(204,0,0,0.5), inset 0 0 12px rgba(204,0,0,0.2); }
-    .orbit-gold {
-      border-color: #FFD700;
-      border-image: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700) 1;
-      border-image: none;
-      border-color: #FFD700;
-      box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 0 6px rgba(255,255,255,0.3), inset 0 0 14px rgba(255,215,0,0.2);
-    }
-
-    /* Glow pulse for higher rings */
-    .orbit-red, .orbit-gold { animation-name: orbit-appear, orbit-spin; }
-    .ring-orbit.high-glow { filter: brightness(1); animation: orbit-appear 0.6s ease forwards, orbit-spin var(--spin-duration) linear infinite, ring-pulse 2s ease-in-out infinite; }
-    .ring-orbit.high-glow-reverse { animation: orbit-appear 0.6s ease forwards, orbit-spin-reverse var(--spin-duration) linear infinite, ring-pulse 2s ease-in-out infinite; }
-    @keyframes ring-pulse {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.4); }
-    }
-
-    /* Bright dot on each ring to show rotation */
-    .ring-dot {
-      position: absolute;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      top: -3px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .orbit-white .ring-dot { background: #FFF; box-shadow: 0 0 4px #FFF; }
-    .orbit-yellow .ring-dot { background: #FFD700; box-shadow: 0 0 6px #FFD700; }
-    .orbit-purple .ring-dot { background: #BF5FFF; box-shadow: 0 0 8px #9B30FF; }
-    .orbit-black .ring-dot { background: #666; box-shadow: 0 0 6px #333; }
-    .orbit-red .ring-dot { background: #FF4444; box-shadow: 0 0 8px #CC0000; width: 8px; height: 8px; top: -4px; }
-    .orbit-gold .ring-dot { background: #FFF; box-shadow: 0 0 10px #FFD700, 0 0 4px #FFF; width: 8px; height: 8px; top: -4px; }
-
-    /* Center silhouette */
+    /* Character silhouette */
     .rings-center {
       position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 48px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 80px;
       z-index: 10;
-      filter: drop-shadow(0 0 16px rgba(255,215,0,0.3));
+      filter: drop-shadow(0 0 20px rgba(255,215,0,0.3));
+      line-height: 1;
+    }
+
+    /* Each ring is a 3D horizontal ellipse */
+    .ring-halo {
+      position: absolute;
+      left: 50%;
+      border-radius: 50%;
+      border-style: solid;
+      border-width: 3px;
+      transform: translateX(-50%) rotateX(75deg);
+      opacity: 0;
+      animation: halo-appear 0.5s ease forwards;
+    }
+
+    /* Staggered appearance from bottom (1st) to top (9th) */
+    .ring-halo:nth-child(2) { animation-delay: 0.15s; }
+    .ring-halo:nth-child(3) { animation-delay: 0.35s; }
+    .ring-halo:nth-child(4) { animation-delay: 0.55s; }
+    .ring-halo:nth-child(5) { animation-delay: 0.75s; }
+    .ring-halo:nth-child(6) { animation-delay: 0.95s; }
+    .ring-halo:nth-child(7) { animation-delay: 1.15s; }
+    .ring-halo:nth-child(8) { animation-delay: 1.35s; }
+    .ring-halo:nth-child(9) { animation-delay: 1.55s; }
+    .ring-halo:nth-child(10) { animation-delay: 1.75s; }
+
+    @keyframes halo-appear {
+      0% { opacity: 0; transform: translateX(-50%) rotateX(75deg) scale(0.2); }
+      60% { opacity: 1; transform: translateX(-50%) rotateX(75deg) scale(1.08); }
+      100% { opacity: 1; transform: translateX(-50%) rotateX(75deg) scale(1); }
+    }
+
+    /* Spin animation — ring rotates around Y axis in 3D */
+    .ring-halo.spin {
+      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite;
+    }
+    @keyframes halo-spin {
+      from { transform: translateX(-50%) rotateX(75deg) rotateZ(0deg); }
+      to { transform: translateX(-50%) rotateX(75deg) rotateZ(360deg); }
+    }
+
+    /* Ring colors */
+    .halo-white {
+      border-color: rgba(220,220,255,0.8);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4), 0 0 3px rgba(255,255,255,0.6);
+    }
+    .halo-yellow {
+      border-color: #FFD700;
+      box-shadow: 0 0 12px rgba(255,215,0,0.5), 0 0 4px rgba(255,215,0,0.8);
+    }
+    .halo-purple {
+      border-color: #A855F7;
+      box-shadow: 0 0 14px rgba(168,85,247,0.5), 0 0 5px rgba(168,85,247,0.8);
+    }
+    .halo-black {
+      border-color: #555;
+      box-shadow: 0 0 16px rgba(0,0,0,0.7), 0 0 4px rgba(80,80,120,0.5), inset 0 0 6px rgba(100,100,180,0.15);
+    }
+    .halo-red {
+      border-color: #EF4444;
+      box-shadow: 0 0 18px rgba(239,68,68,0.6), 0 0 6px rgba(239,68,68,0.9);
+      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite, halo-pulse 2s ease-in-out infinite;
+    }
+    .halo-gold {
+      border-color: #FFD700;
+      box-shadow: 0 0 22px rgba(255,215,0,0.7), 0 0 8px rgba(255,255,255,0.5), 0 0 40px rgba(255,215,0,0.2);
+      animation: halo-appear 0.5s ease forwards, halo-spin var(--spin-dur, 10s) linear infinite, halo-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes halo-pulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.5); }
     }
 
     /* Legend */
@@ -477,22 +471,16 @@
       gap: 4px;
     }
     .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+      width: 8px; height: 8px; border-radius: 50%;
     }
 
-    /* Small dot version for skill list */
+    /* Small dot for skill list */
     .skill-ring-dot {
       width: 28px; height: 28px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
     }
     .sdot-white { background: rgba(255,255,255,0.9); color: #999; }
     .sdot-yellow { background: #FFD700; color: #665500; }
@@ -1004,22 +992,29 @@
     const WX_EMOJI = { '金':'⚔️', '木':'🌿', '水':'🌊', '火':'🔥', '土':'🏔️' };
     const WX_CLASS = { '金':'el-metal', '木':'el-wood', '水':'el-water', '火':'el-fire', '土':'el-earth' };
 
-    // Solar term approximate dates [month, day] for month boundaries
-    // Each entry marks the START of that BaZi month
-    const SOLAR_TERMS = [
-      [2, 4],   // 立春 → 寅月(1)
-      [3, 6],   // 惊蛰 → 卯月(2)
-      [4, 5],   // 清明 → 辰月(3)
-      [5, 6],   // 立夏 → 巳月(4)
-      [6, 6],   // 芒种 → 午月(5)
-      [7, 7],   // 小暑 → 未月(6)
-      [8, 8],   // 立秋 → 申月(7)
-      [9, 8],   // 白露 → 酉月(8)
-      [10, 8],  // 寒露 → 戌月(9)
-      [11, 7],  // 立冬 → 亥月(10)
-      [12, 7],  // 大雪 → 子月(11)
-      [1, 6],   // 小寒 → 丑月(12)
+    // Precise solar term dates (1940-2026), encoded as day-of-month strings
+    // Each char = day of month for that year (index = year - 1940)
+    const JIEQI_DAYS = [
+      '544554445444544454445444544454445444544454444444444444444444444444444444444443444344434', // 立春 Feb
+      '666666665666566656665666566656665666566666665566556655665566556655665566555655565556555', // 惊蛰 Mar
+      '555655555555555555555555555555555555455545554555455545554555455545554455445544554455445', // 清明 Apr
+      '666656665666566656665666566656665566556655665566556655665566556655565556555655565556555', // 立夏 May
+      '666666666666666666666666666656665666566656665666566656665566556655665566556655665566555', // 芒种 Jun
+      '778877887788778877787778777877787778777877787777777777777777777777777777777767776777677', // 小暑 Jul
+      '888888887888788878887888788878887888778877887788778877887788778877787778777877787778777', // 立秋 Aug
+      '888888888888888888887888788878887888788878887888778877887788778877887788778877887778777', // 白露 Sep
+      '899988998899889988998899889988998899888988898889888988898889888988898888888888888888888', // 寒露 Oct
+      '788878887888788878887788778877887788778877887788778877787778777877787778777877787778777', // 立冬 Nov
+      '778877887788777877787778777877787778777877787777777777777777777777777777777777777777677', // 大雪 Dec
+      '666666666566656665666566656665666566656665666556655665566556655665566556655665556555655', // 小寒 Jan
     ];
+    const JIEQI_MONTHS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1];
+
+    function getSolarTermDate(year, termIdx) {
+      const y = Math.max(1940, Math.min(2026, year));
+      const day = parseInt(JIEQI_DAYS[termIdx][y - 1940]);
+      return [JIEQI_MONTHS[termIdx], day];
+    }
 
     // 藏干 — each Earthly Branch contains hidden Heavenly Stems
     // Index: 子0 丑1 寅2 卯3 辰4 巳5 午6 未7 申8 酉9 戌10 亥11
@@ -1084,11 +1079,11 @@
              Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
     }
 
-    // Year pillar (以立春为界)
+    // Year pillar (以精确立春为界)
     function getYearPillar(year, month, day) {
-      // Before 立春 (approx Feb 4), use previous year
+      const [lcM, lcD] = getSolarTermDate(year, 0); // 立春
       let y = year;
-      if (month < 2 || (month === 2 && day < 4)) {
+      if (month < lcM || (month === lcM && day < lcD)) {
         y -= 1;
       }
       const stemIdx = (y - 4) % 10;
@@ -1096,38 +1091,28 @@
       return { stem: stemIdx, branch: branchIdx };
     }
 
-    // Month pillar
+    // Month pillar (using precise solar term dates)
     function getMonthPillar(year, month, day) {
       const yearPillar = getYearPillar(year, month, day);
 
-      // Determine which BaZi month (1-12, where 1=寅月)
-      let baziMonth = 0;
-      // Check from 小寒(month12) backwards
-      if (month === 1 && day >= 6) baziMonth = 12;
-      else if (month === 1) baziMonth = 11; // before 小寒, still 子月
-      else {
-        baziMonth = 11; // default to 子月(11) for Dec before 大雪
-        for (let i = 0; i < 11; i++) {
-          const [tm, td] = SOLAR_TERMS[i];
-          const [nm, nd] = SOLAR_TERMS[i + 1] || [13, 1];
-          if (month === tm && day >= td) {
-            // Check if we're past this term but before next
-            if (i + 1 < 11) {
-              const [nextM, nextD] = SOLAR_TERMS[i + 1];
-              if (month < nextM || (month === nextM && day < nextD)) {
-                baziMonth = i + 1;
-                break;
-              }
-            } else {
-              baziMonth = i + 1;
-              break;
-            }
-          }
+      // Determine BaZi month (1-12) by checking each solar term boundary
+      // Terms 0-10 are in the same year, term 11 (小寒) is in January
+      let baziMonth = 12; // default: 丑月 (before 立春)
+
+      // Check 小寒 first (January, term 11)
+      if (month === 1) {
+        const [, xhD] = getSolarTermDate(year, 11); // 小寒
+        if (day >= xhD) {
+          baziMonth = 12; // 丑月
+        } else {
+          // Before 小寒 → still 子月(11) from previous year's 大雪
+          baziMonth = 11;
         }
-        // Simpler approach: find the last solar term we've passed
+      } else {
+        // Feb-Dec: find the last term we've passed (terms 0-10)
         let found = false;
         for (let i = 10; i >= 0; i--) {
-          const [tm, td] = SOLAR_TERMS[i];
+          const [tm, td] = getSolarTermDate(year, i);
           if (month > tm || (month === tm && day >= td)) {
             baziMonth = i + 1;
             found = true;
@@ -1135,7 +1120,7 @@
           }
         }
         if (!found) {
-          // Before 立春 (Feb 4), we're in 丑月(12) of previous year
+          // Before 立春 → 丑月(12)
           baziMonth = 12;
         }
       }
@@ -1143,10 +1128,9 @@
       // Month branch: 寅(2) for month 1, 卯(3) for month 2, etc.
       const branchIdx = (baziMonth + 1) % 12;
 
-      // Month stem: 五虎遁 (based on year stem)
-      // 甲己之年丙作首(丙寅), 乙庚之年戊作首, 丙辛之年庚作首, 丁壬之年壬作首, 戊癸之年甲作首
+      // Month stem: 五虎遁
       const yearStem = yearPillar.stem;
-      const monthStemStart = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0]; // 五虎遁起始天干
+      const monthStemStart = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0];
       const stemIdx = (monthStemStart[yearStem] + baziMonth - 1) % 10;
 
       return { stem: stemIdx, branch: branchIdx };
@@ -1674,24 +1658,18 @@
       `;
       document.getElementById('r-elements').innerHTML = elemHtml;
 
-      // Soul rings — orbiting Douluo style
+      // Soul rings — Douluo anime 3D halo style
       const ringLabels = { white: '十年', yellow: '百年', purple: '千年', black: '万年', red: '十万年', gold: '百万年' };
-      const baseSize = 50; // innermost ring diameter
-      const step = 24;     // size increment per ring
-      let ringsHtml = '<div class="rings-center">🧍</div>';
+      let ringsHtml = '<div class="rings-center">🧘</div>';
+      const stageH = 340;
       rings.forEach((r, i) => {
-        const size = baseSize + step * i;
-        const isHigh = (r === 'red' || r === 'gold');
-        const isEven = i % 2 === 1;
-        const spinDur = 8 + i * 2; // outer rings spin slower
-        const spinClass = isHigh
-          ? (isEven ? 'high-glow-reverse' : 'high-glow')
-          : (isEven ? 'spinning-reverse' : 'spinning');
+        const size = 100 + i * 12; // ring diameter grows slightly
+        const bottom = 30 + i * 28; // stack from bottom to top
+        const spinDur = 6 + i * 1.5; // outer/higher rings spin slower
         ringsHtml += `
-          <div class="ring-orbit orbit-${r} ${spinClass}"
-               style="width:${size}px;height:${size}px;--spin-duration:${spinDur}s;animation-delay:${0.2 + i * 0.25}s,${0.2 + i * 0.25}s,${0.2 + i * 0.25}s"
+          <div class="ring-halo halo-${r} spin"
+               style="width:${size}px;height:${size}px;bottom:${bottom}px;--spin-dur:${spinDur}s"
                title="第${i+1}魂环: ${ringLabels[r]}">
-            <div class="ring-dot"></div>
           </div>`;
       });
       document.getElementById('r-soul-rings').innerHTML = ringsHtml;
