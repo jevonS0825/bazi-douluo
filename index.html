@@ -806,6 +806,24 @@
       padding: 0 8px;
     }
 
+    /* Relations (刑冲合会) */
+    .relations-section { margin-bottom: 16px; }
+    .relations-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .relation-tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-weight: 500;
+    }
+    .rel-boost { background: rgba(52,199,89,0.15); color: #34C759; border: 1px solid rgba(52,199,89,0.3); }
+    .rel-clash { background: rgba(255,59,48,0.15); color: #FF3B30; border: 1px solid rgba(255,59,48,0.3); }
+    .rel-punish { background: rgba(255,149,0,0.15); color: #FF9500; border: 1px solid rgba(255,149,0,0.3); }
+
     /* Responsive */
     @media (max-width: 380px) {
       .container { padding: 24px 16px; }
@@ -929,6 +947,9 @@
         <div class="bazi-section">
           <div class="bazi-label">四 柱 八 字</div>
           <div class="bazi-pillars" id="r-bazi"></div>
+          <div class="relations-section hidden" id="relations-section">
+            <div class="relations-tags" id="r-relations"></div>
+          </div>
         </div>
 
         <!-- Stats (AI generated) -->
@@ -999,6 +1020,58 @@
       [12, 7],  // 大雪 → 子月(11)
       [1, 6],   // 小寒 → 丑月(12)
     ];
+
+    // 藏干 — each Earthly Branch contains hidden Heavenly Stems
+    // Index: 子0 丑1 寅2 卯3 辰4 巳5 午6 未7 申8 酉9 戌10 亥11
+    // Each entry: [本气, 中气?, 余气?] as stem indices
+    const CANG_GAN = [
+      [9],       // 子: 癸
+      [5, 7, 9], // 丑: 己辛癸
+      [0, 2, 4], // 寅: 甲丙戊
+      [1],       // 卯: 乙
+      [4, 1, 9], // 辰: 戊乙癸
+      [2, 4, 6], // 巳: 丙戊庚
+      [3, 5],    // 午: 丁己
+      [5, 3, 1], // 未: 己丁乙
+      [6, 8, 4], // 申: 庚壬戊
+      [7],       // 酉: 辛
+      [4, 7, 3], // 戌: 戊辛丁
+      [8, 0],    // 亥: 壬甲
+    ];
+    // 藏干权重：本气1.0, 中气0.5, 余气0.3
+    const CANG_WEIGHT = [1.0, 0.5, 0.3];
+
+    // 地支六合
+    const LIU_HE = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]]; // 子丑,寅亥,卯戌,辰酉,巳申,午未
+    const LIU_HE_WX = ['土','木','火','金','水','火']; // 合化五行
+
+    // 地支三合局
+    const SAN_HE = [
+      [[8,0,4], '水'], // 申子辰合水
+      [[11,3,7], '木'], // 亥卯未合木
+      [[2,6,10], '火'], // 寅午戌合火
+      [[5,9,1], '金'], // 巳酉丑合金
+    ];
+
+    // 地支三会局
+    const SAN_HUI = [
+      [[2,3,4], '木'],  // 寅卯辰会木
+      [[5,6,7], '火'],  // 巳午未会火
+      [[8,9,10], '金'], // 申酉戌会金
+      [[11,0,1], '水'], // 亥子丑会水
+    ];
+
+    // 地支六冲
+    const LIU_CHONG = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]]; // 子午,丑未,寅申,卯酉,辰戌,巳亥
+
+    // 地支三刑
+    const SAN_XING = [
+      [[2,5,8], '无恩之刑'],   // 寅巳申
+      [[1,7,10], '持势之刑'],  // 丑未戌
+      [[0,3], '无礼之刑'],     // 子卯
+    ];
+    // 自刑: 辰辰,午午,酉酉,亥亥
+    const ZI_XING = [4, 6, 9, 11];
 
     // ==================== BAZI ENGINE ====================
 
@@ -1096,37 +1169,102 @@
       return { stem: stemIdx, branch: hourBranchIdx };
     }
 
-    // Full BaZi calculation
+    // Full BaZi calculation with 藏干 + 刑冲合会
     function calculateBaZi(year, month, day, hourIdx) {
       const yearP = getYearPillar(year, month, day);
       const monthP = getMonthPillar(year, month, day);
       const dayP = getDayPillar(year, month, day);
       const hourP = hourIdx >= 0 ? getHourPillar(dayP.stem, hourIdx) : null;
 
-      // Count five elements
-      const wxCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
       const pillars = [yearP, monthP, dayP];
       if (hourP) pillars.push(hourP);
 
+      // ---- 五行计数（含藏干） ----
+      const wxCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+
+      // 天干直接计（权重1）
       pillars.forEach(p => {
-        wxCount[WU_XING[p.stem]]++;
-        wxCount[DI_ZHI_WX[p.branch]]++;
+        wxCount[WU_XING[p.stem]] += 1;
       });
 
-      // Sort elements by count
+      // 地支藏干计（本气1.0, 中气0.5, 余气0.3）
+      pillars.forEach(p => {
+        const hidden = CANG_GAN[p.branch];
+        hidden.forEach((stemIdx, i) => {
+          wxCount[WU_XING[stemIdx]] += CANG_WEIGHT[i] || 0.3;
+        });
+      });
+
+      // ---- 检测刑冲合会 ----
+      const branches = pillars.map(p => p.branch);
+      const relations = []; // {type, desc, element?}
+
+      // 六合
+      LIU_HE.forEach(([a, b], idx) => {
+        if (branches.includes(a) && branches.includes(b)) {
+          relations.push({ type: '合', desc: `${DI_ZHI[a]}${DI_ZHI[b]}合${LIU_HE_WX[idx]}`, element: LIU_HE_WX[idx], boost: true });
+          wxCount[LIU_HE_WX[idx]] += 0.5; // 合化增强
+        }
+      });
+
+      // 三合局
+      SAN_HE.forEach(([trio, wx]) => {
+        if (trio.every(b => branches.includes(b))) {
+          relations.push({ type: '三合', desc: `${trio.map(b=>DI_ZHI[b]).join('')}三合${wx}局`, element: wx, boost: true });
+          wxCount[wx] += 1.5; // 三合局大幅增强
+        }
+      });
+
+      // 三会局
+      SAN_HUI.forEach(([trio, wx]) => {
+        if (trio.every(b => branches.includes(b))) {
+          relations.push({ type: '三会', desc: `${trio.map(b=>DI_ZHI[b]).join('')}三会${wx}局`, element: wx, boost: true });
+          wxCount[wx] += 2.0; // 三会局最强
+        }
+      });
+
+      // 六冲
+      LIU_CHONG.forEach(([a, b]) => {
+        if (branches.includes(a) && branches.includes(b)) {
+          relations.push({ type: '冲', desc: `${DI_ZHI[a]}${DI_ZHI[b]}相冲`, clash: true });
+        }
+      });
+
+      // 三刑
+      SAN_XING.forEach(([group, name]) => {
+        const matched = group.filter(b => branches.includes(b));
+        if (matched.length >= 2) {
+          relations.push({ type: '刑', desc: `${matched.map(b=>DI_ZHI[b]).join('')}${name}` });
+        }
+      });
+
+      // 自刑
+      ZI_XING.forEach(b => {
+        const count = branches.filter(x => x === b).length;
+        if (count >= 2) {
+          relations.push({ type: '自刑', desc: `${DI_ZHI[b]}${DI_ZHI[b]}自刑` });
+        }
+      });
+
+      // ---- 结果汇总 ----
       const sorted = Object.entries(wxCount).sort((a, b) => b[1] - a[1]);
       const primary = sorted[0][0];
       const secondary = sorted[1][0];
-      const missing = sorted.filter(([, v]) => v === 0).map(([k]) => k);
+      const missing = sorted.filter(([, v]) => v < 0.3).map(([k]) => k);
 
-      // Shengxiao (zodiac)
       const zodiac = SHENG_XIAO[yearP.branch];
+
+      // 命格强度评分（用于魂环品质）
+      const totalWx = Object.values(wxCount).reduce((a, b) => a + b, 0);
+      const strengthScore = wxCount[primary] / totalWx;
+      const hasBoost = relations.some(r => r.boost);
 
       return {
         year: yearP, month: monthP, day: dayP, hour: hourP,
         wxCount, primary, secondary, missing, zodiac,
         dayMaster: WU_XING[dayP.stem],
-        dayMasterName: TIAN_GAN[dayP.stem]
+        dayMasterName: TIAN_GAN[dayP.stem],
+        relations, strengthScore, hasBoost
       };
     }
 
@@ -1337,7 +1475,8 @@
         bazi.hour ? `时柱:${TIAN_GAN[bazi.hour.stem]}${DI_ZHI[bazi.hour.branch]}` : '时柱:未知'
       ].join('，');
 
-      const wxStr = Object.entries(bazi.wxCount).map(([k, v]) => `${k}${v}`).join(' ');
+      const wxStr = Object.entries(bazi.wxCount).map(([k, v]) => `${k}${v.toFixed(1)}`).join(' ');
+      const relStr = bazi.relations.length > 0 ? bazi.relations.map(r => r.desc).join('、') : '无特殊关系';
 
       const prompt = `你是斗罗大陆世界观的顶级设定大师。根据以下八字命理信息，创造一个完整的封号斗罗角色。
 
@@ -1348,6 +1487,8 @@
 - 主属性：${bazi.primary}，辅属性：${bazi.secondary}
 - 缺五行：${bazi.missing.length > 0 ? bazi.missing.join('、') : '无'}
 - 生肖：${bazi.zodiac}
+- 刑冲合会：${relStr}
+- 命格强度：${(bazi.strengthScore * 100).toFixed(0)}%
 
 请严格按以下JSON格式回复（不要加任何多余文字，不要用markdown）：
 {
@@ -1555,7 +1696,7 @@
       });
       document.getElementById('r-soul-rings').innerHTML = ringsHtml;
 
-      // BaZi pillars
+      // BaZi pillars with 藏干
       const pillars = [
         { label: '年柱', pillar: bazi.year },
         { label: '月柱', pillar: bazi.month },
@@ -1568,14 +1709,31 @@
       const baziHtml = pillars.map(({ label, pillar }) => {
         const stemWx = WU_XING[pillar.stem];
         const branchWx = DI_ZHI_WX[pillar.branch];
+        const hidden = CANG_GAN[pillar.branch];
+        const hiddenStr = hidden.map(s => TIAN_GAN[s]).join('');
         return `
           <div class="bazi-pillar">
             <div class="bazi-pillar-label">${label}</div>
             <div class="bazi-stem ${WX_CLASS[stemWx]}">${TIAN_GAN[pillar.stem]}</div>
             <div class="bazi-branch ${WX_CLASS[branchWx]}">${DI_ZHI[pillar.branch]}</div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-top:4px">藏 ${hiddenStr}</div>
           </div>`;
       }).join('');
       document.getElementById('r-bazi').innerHTML = baziHtml;
+
+      // Relations (刑冲合会)
+      if (bazi.relations.length > 0) {
+        document.getElementById('relations-section').classList.remove('hidden');
+        const relHtml = bazi.relations.map(r => {
+          let cls = 'rel-boost';
+          if (r.clash) cls = 'rel-clash';
+          else if (r.type === '刑' || r.type === '自刑') cls = 'rel-punish';
+          return `<span class="relation-tag ${cls}">${r.desc}</span>`;
+        }).join('');
+        document.getElementById('r-relations').innerHTML = relHtml;
+      } else {
+        document.getElementById('relations-section').classList.add('hidden');
+      }
 
       // Personality
       document.getElementById('r-personality').innerHTML = personality.replace(/\n/g, '<br>');
@@ -1692,7 +1850,7 @@
     function resetApp() {
       document.getElementById('screen-result').classList.add('hidden');
       document.getElementById('screen-home').classList.remove('hidden');
-      ['skills-section','stats-section','talent-section','soulbone-section'].forEach(id =>
+      ['skills-section','stats-section','talent-section','soulbone-section','relations-section'].forEach(id =>
         document.getElementById(id).classList.add('hidden'));
       document.getElementById('r-wuhun-desc').classList.add('hidden');
     }
